@@ -3,7 +3,7 @@
 import { ArrowLeft, BarChart3, ChevronDown, Menu, PiggyBank, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
+import { Dispatch, MouseEvent, ReactNode, SetStateAction, useEffect, useState } from "react";
 import styles from "../../production/sows/intake/page.module.css";
 import { reportMenus, sidebarWorkLedgerMenus, sowListMenus, workOrderMenus } from "../_data/report-menus";
 
@@ -38,6 +38,16 @@ export default function ReportShell({ children }: { children: ReactNode }) {
     if (isWorkOrders) setWorkOrdersOpen(true);
   }, [isWorkOrders]);
 
+  // 카테고리 안에 있으면 이동 없이 접기·펼치기만 하고, 밖에 있으면 해당 보고서로 이동하며 펼친다.
+  const toggleCategory = (event: MouseEvent<HTMLAnchorElement>, isCurrent: boolean, setOpen: Dispatch<SetStateAction<boolean>>) => {
+    if (isCurrent) {
+      event.preventDefault();
+      setOpen((open) => !open);
+      return;
+    }
+    setOpen(true);
+  };
+
   return <div className={styles.shell}>
     <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""}`}>
       <div className={styles.brand}><span><PiggyBank size={21} /></span><strong>피그매니저</strong><button onClick={() => setSidebarOpen(false)} aria-label="메뉴 닫기"><X size={19} /></button></div>
@@ -45,21 +55,21 @@ export default function ReportShell({ children }: { children: ReactNode }) {
       <div className={styles.navGroup}>
         <div className={styles.navTitle}><span>보고서</span><BarChart3 size={16} /></div>
         {reportMenus.map((menu) => menu.key === "work-ledger" ? <div key={menu.key}>
-          <Link href={menu.route} className={isWorkLedger ? styles.activeNav : styles.navItem} onClick={() => setWorkLedgerOpen((open) => !open)} aria-expanded={workLedgerOpen}>
+          <Link href={menu.route} className={isWorkLedger ? styles.activeNav : styles.navItem} onClick={(event) => toggleCategory(event, isWorkLedger, setWorkLedgerOpen)} aria-expanded={workLedgerOpen}>
             <i />{menu.label}<ChevronDown className={`${styles.navChevron} ${workLedgerOpen ? styles.navChevronOpen : ""}`} size={14} />
           </Link>
           {workLedgerOpen ? <div className={styles.nestedNav}>
             {sidebarWorkLedgerMenus.map((ledger) => <Link key={ledger.key} href={ledger.route} className={pathname === ledger.route || (ledger.key === "mating" && showBreedingLedgerTabs) ? styles.activeNav : styles.navItem} onClick={() => setSidebarOpen(false)}><i />{ledger.label}</Link>)}
           </div> : null}
         </div> : menu.key === "sow-list" ? <div key={menu.key}>
-          <Link href={menu.route} className={isSowList ? styles.activeNav : styles.navItem} onClick={() => setSowListOpen((open) => !open)} aria-expanded={sowListOpen}>
+          <Link href={menu.route} className={isSowList ? styles.activeNav : styles.navItem} onClick={(event) => toggleCategory(event, isSowList, setSowListOpen)} aria-expanded={sowListOpen}>
             <i />{menu.label}<ChevronDown className={`${styles.navChevron} ${sowListOpen ? styles.navChevronOpen : ""}`} size={14} />
           </Link>
           {sowListOpen ? <div className={styles.nestedNav}>
             {sowListMenus.map((item) => <Link key={item.key} href={item.route} className={pathname === item.route ? styles.activeNav : styles.navItem} onClick={() => setSidebarOpen(false)}><i />{item.label}</Link>)}
           </div> : null}
         </div> : menu.key === "work-orders" ? <div key={menu.key}>
-          <Link href={menu.route} className={isWorkOrders ? styles.activeNav : styles.navItem} onClick={() => setWorkOrdersOpen((open) => !open)} aria-expanded={workOrdersOpen}>
+          <Link href={menu.route} className={isWorkOrders ? styles.activeNav : styles.navItem} onClick={(event) => toggleCategory(event, isWorkOrders, setWorkOrdersOpen)} aria-expanded={workOrdersOpen}>
             <i />{menu.label}<ChevronDown className={`${styles.navChevron} ${workOrdersOpen ? styles.navChevronOpen : ""}`} size={14} />
           </Link>
           {workOrdersOpen ? <div className={styles.nestedNav}>{workOrderMenus.filter((item) => item.key !== "weekly-status").map((item) => <Link key={item.key} href={item.route} className={pathname === item.route ? styles.activeNav : styles.navItem} onClick={() => setSidebarOpen(false)}><i />{item.label}</Link>)}</div> : null}

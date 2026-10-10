@@ -85,7 +85,7 @@ npm start
 
 - 대시보드 사이드바에 접기·펼치기 가능한 보고서 탭을 추가했다.
 - 하위 메뉴와 실제 경로: 작업대장(`/reports/work-ledger`), 모돈리스트(`/reports/sow-list`), 작업지시서(`/reports/work-orders`), 교배(`/reports/mating`), 분만(`/reports/farrowing`), 생산분석(`/reports/production-analysis`), 비육돈(`/reports/fattening`), 출하분석(`/reports/shipping-analysis`).
-- 모든 보고서 페이지는 공통 보고서 사이드바를 사용한다. 상세 항목·계산식·조회 조건·출력 형식은 사용자 예시를 받아 메뉴별로 확정한다.
+- 모든 보고서 페이지는 공통 보고서 사이드바를 사용한다. 사이드바의 작업대장·모돈리스트·작업지시서 카테고리는 해당 카테고리 화면 안에서 누르면 이동 없이 접기·펼치기만 하고, 다른 보고서 화면에서 누르면 해당 보고서로 이동하며 펼친다(`report-shell.tsx`의 `toggleCategory`). 상세 항목·계산식·조회 조건·출력 형식은 사용자 예시를 받아 메뉴별로 확정한다.
 - 작업대장은 모돈 전입·교배·분만·포유자돈·이유·등지방·도폐사, 웅돈 전입·도폐사, 비육돈 그룹등록·이동전입·폐사·전출/출하·그룹종료의 브라우저 저장 기록을 하나의 목록으로 통합한다.
 - 작업대장은 작업일 기간, 관리구분(모돈/웅돈/비육돈), 작업구분, 통합검색, 작업일 오름·내림차순과 10건 페이지 이동을 지원한다.
 - 초발정과 임신사고는 공용 `localStorage` 저장 구조와 작업대장 연결을 완료했다.
@@ -345,6 +345,7 @@ npm start
 - 2026-10-10 (Claude Cowork): 문서 불일치 정리. 코드 변경 없음 — 메뉴 수(비육돈 3개, 작업대장 정의 11개/사이드바 7개, 작업지시서 정의 9개/사이드바 8개) 현행화, 비육돈 보조 경로 설명, 미구현 화면 목록, localStorage 키 표 보완, 다음 작업 후보 번호·시작 문구 정리, README 현재 단계 갱신, 대시보드 사이드바 작업대장 11개 표시 불일치 기록. 소스 코드를 바꾸지 않아 `npm run build`·브라우저 검증 대상 아님.
 - 2026-10-10: Codex 샌드박스에서 `npm run build`가 `Failed to load next.config.ts / failed to canonicalize jsc.baseUrl / 액세스가 거부되었습니다 (os error 5)`로 실패함(코드 문제 아님). 사용자 PowerShell에서 직접 `npm run build` 성공(Next.js 16.3.5, TypeScript 통과, 정적 페이지 69개 생성)했고, 동일 소스의 Linux 환경 `npm ci && next build`도 성공함. Codex에서 빌드가 막히면 PowerShell에서 직접 실행하거나 Codex 권한을 올려 실행한다.
 - 2026-10-10: `.gitignore`에 `.artifact-runtime/` 추가.
+- 2026-10-10 (Claude Cowork): 보고서 사이드바의 모돈리스트·작업지시서가 다시 눌러도 접히지 않던 문제 수정. 원인은 카테고리 링크가 `/reports/sow-list`·`/reports/work-orders`로 이동하며 첫 하위 보고서로 다시 이동해 사이드바가 새로 펼쳐진 상태로 열린 것. 카테고리 안에서는 이동을 막고 접기·펼치기만 하도록 3개 카테고리에 공통 적용. `tsc --noEmit`·`next build` 성공, Playwright로 모돈카드·분만 예정돈·초발정대장·통합 작업대장 화면에서 접기→펼치기와 URL 유지, 다른 보고서(교배)에서 모돈리스트·작업지시서 클릭 시 보유모돈·종합일보로 이동하며 펼침, 콘솔 오류 0건 확인. 참고: 하위 대장 화면에서 작업대장 머리글을 눌러도 통합 작업대장(`/reports/work-ledger`)으로 이동하지 않고 접기만 한다.
 - 2026-10-10 (Claude Cowork): 대시보드 사이드바 작업대장 하위 메뉴를 11개 → 7개로 보고서 사이드바와 통일(`report-menus.ts`에 `hiddenBreedingLedgerKeys`·`sidebarWorkLedgerMenus` 추가, `app/page.tsx`·`report-shell.tsx`가 공용 사용). Linux 환경에서 `next build` 성공(정적 페이지 69개)과 `tsc --noEmit` 통과. Playwright(Chromium) 실제 브라우저로 대시보드 → 보고서 → 작업대장 클릭 시 하위 메뉴 7개 표시와 `/reports/work-ledger` 이동, `/reports/work-ledger/farrowing`의 사이드바 7개·번식 상단 탭 5개 표시, 콘솔 오류 0건을 확인함.
 
 ## 8. 다음 작업 후보
