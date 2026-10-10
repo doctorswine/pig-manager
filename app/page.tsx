@@ -23,15 +23,23 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { reportMenus, sowListMenus, workLedgerMenus, workOrderMenus } from "./reports/_data/report-menus";
 
 const modules = [
   { name: "모돈개체관리", description: "후보돈부터 이유까지 개체 이력", icon: PiggyBank, count: "192두" },
   { name: "웅돈개체관리", description: "웅돈 기본정보와 사용 이력", icon: Users, count: "8두" },
-  { name: "비육돈그룹관리", description: "그룹별 입식과 두수 현황", icon: Warehouse, count: "준비 중" },
-  { name: "출하관리", description: "출하 계획과 실적 관리", icon: Ship, count: "준비 중" },
+  { name: "비육돈그룹관리", description: "그룹별 입식과 두수 현황", icon: Warehouse, count: "3개 메뉴" },
+  { name: "출하관리", description: "등급판정 결과와 출하 성적", icon: Ship, count: "eKAPE 연동" },
 ];
 
 const sowMenus = ["전입관리", "초발정관리", "번식관리", "등지방관리", "도폐사관리"];
+const boarMenus = ["웅돈 전입관리", "웅돈 도폐사관리"];
+const fatteningGroupMenus = ["그룹등록", "두수관리", "그룹종료"];
+const fatteningGroupRoutes: Record<string, string> = {
+  그룹등록: "/production/fattening-groups/registration",
+  두수관리: "/production/fattening-groups/movement-intake",
+  그룹종료: "/production/fattening-groups/closure",
+};
 
 const tasks = [
   { type: "분만 예정 초과", animal: "모돈 23018", location: "분만사 A-12", due: "2일 지연", status: "danger" },
@@ -60,9 +68,22 @@ function LogoMark() {
 export default function Dashboard() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [productionMenuOpen, setProductionMenuOpen] = useState(false);
   const [activeModule, setActiveModule] = useState("모돈개체관리");
   const [sowMenuOpen, setSowMenuOpen] = useState(true);
   const [activeSowMenu, setActiveSowMenu] = useState("전입관리");
+  const [boarMenuOpen, setBoarMenuOpen] = useState(false);
+  const [activeBoarMenu, setActiveBoarMenu] = useState("웅돈 전입관리");
+  const [fatteningGroupMenuOpen, setFatteningGroupMenuOpen] = useState(false);
+  const [activeFatteningGroupMenu, setActiveFatteningGroupMenu] = useState("그룹등록");
+  const [reportMenuOpen, setReportMenuOpen] = useState(false);
+  const [activeReportMenu, setActiveReportMenu] = useState("work-ledger");
+  const [workLedgerMenuOpen, setWorkLedgerMenuOpen] = useState(false);
+  const [activeWorkLedgerMenu, setActiveWorkLedgerMenu] = useState("");
+  const [sowListMenuOpen, setSowListMenuOpen] = useState(false);
+  const [activeSowListMenu, setActiveSowListMenu] = useState("");
+  const [workOrderMenuOpen, setWorkOrderMenuOpen] = useState(false);
+  const [activeWorkOrderMenu, setActiveWorkOrderMenu] = useState("");
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -89,8 +110,11 @@ export default function Dashboard() {
         <nav aria-label="주요 메뉴">
           <a className="nav-link active" href="#dashboard"><LayoutDashboard size={19} /><span>대시보드</span></a>
           <div className="nav-group">
-            <div className="nav-label"><Activity size={19} /><span>생산관리</span><ChevronDown size={16} /></div>
-            {modules.map((module) => (
+            <button className="nav-label" type="button" onClick={() => {
+              setProductionMenuOpen((isOpen) => !isOpen);
+              setReportMenuOpen(false);
+            }} aria-expanded={productionMenuOpen}><Activity size={19} /><span>생산관리</span><ChevronDown className={productionMenuOpen ? "rotate" : ""} size={16} /></button>
+            {productionMenuOpen ? modules.map((module) => (
               <div className="sub-nav-group" key={module.name}>
                 <button
                   className={`sub-nav ${activeModule === module.name ? "active" : ""}`}
@@ -98,16 +122,38 @@ export default function Dashboard() {
                     setActiveModule(module.name);
                     if (module.name === "모돈개체관리") {
                       setSowMenuOpen((isOpen) => activeModule === module.name ? !isOpen : true);
+                      setBoarMenuOpen(false);
+                      setFatteningGroupMenuOpen(false);
+                    } else if (module.name === "웅돈개체관리") {
+                      setBoarMenuOpen((isOpen) => activeModule === module.name ? !isOpen : true);
+                      setSowMenuOpen(false);
+                      setFatteningGroupMenuOpen(false);
+                    } else if (module.name === "비육돈그룹관리") {
+                      setFatteningGroupMenuOpen((isOpen) => activeModule === module.name ? !isOpen : true);
+                      setSowMenuOpen(false);
+                      setBoarMenuOpen(false);
+                    } else if (module.name === "출하관리") {
+                      setSowMenuOpen(false);
+                      setBoarMenuOpen(false);
+                      setFatteningGroupMenuOpen(false);
+                      setMenuOpen(false);
+                      router.push("/production/shipping/grade-results");
                     } else {
                       setSowMenuOpen(false);
+                      setBoarMenuOpen(false);
+                      setFatteningGroupMenuOpen(false);
                       setMenuOpen(false);
                     }
                   }}
-                  aria-expanded={module.name === "모돈개체관리" ? sowMenuOpen : undefined}
+                  aria-expanded={module.name === "모돈개체관리" ? sowMenuOpen : module.name === "웅돈개체관리" ? boarMenuOpen : module.name === "비육돈그룹관리" ? fatteningGroupMenuOpen : undefined}
                 >
                   <span>{module.name}</span>
                   {module.name === "모돈개체관리" ? (
                     <ChevronDown className={sowMenuOpen ? "rotate" : ""} size={15} />
+                  ) : module.name === "웅돈개체관리" ? (
+                    <ChevronDown className={boarMenuOpen ? "rotate" : ""} size={15} />
+                  ) : module.name === "비육돈그룹관리" ? (
+                    <ChevronDown className={fatteningGroupMenuOpen ? "rotate" : ""} size={15} />
                   ) : module.count === "준비 중" ? <small>예정</small> : null}
                 </button>
                 {module.name === "모돈개체관리" && activeModule === module.name && sowMenuOpen ? (
@@ -125,6 +171,10 @@ export default function Dashboard() {
                             router.push("/production/sows/first-estrus");
                           } else if (menu === "번식관리") {
                             router.push("/production/sows/breeding/mating");
+                          } else if (menu === "등지방관리") {
+                            router.push("/production/sows/backfat");
+                          } else if (menu === "도폐사관리") {
+                            router.push("/production/sows/cull");
                           } else {
                             showNotice(`${menu} 화면은 다음 단계에서 구성합니다.`);
                           }
@@ -135,11 +185,82 @@ export default function Dashboard() {
                     ))}
                   </div>
                 ) : null}
+                {module.name === "웅돈개체관리" && activeModule === module.name && boarMenuOpen ? (
+                  <div className="sow-submenu">
+                    {boarMenus.map((menu) => (
+                      <button className={activeBoarMenu === menu ? "active" : ""} key={menu} onClick={() => {
+                        setActiveBoarMenu(menu);
+                        setMenuOpen(false);
+                        router.push(menu === "웅돈 전입관리" ? "/production/boars/intake" : "/production/boars/cull");
+                      }}><span aria-hidden="true" />{menu}</button>
+                    ))}
+                  </div>
+                ) : null}
+                {module.name === "비육돈그룹관리" && activeModule === module.name && fatteningGroupMenuOpen ? (
+                  <div className="sow-submenu">
+                    {fatteningGroupMenus.map((menu) => (
+                      <button className={activeFatteningGroupMenu === menu ? "active" : ""} key={menu} onClick={() => {
+                        setActiveFatteningGroupMenu(menu);
+                        setMenuOpen(false);
+                        router.push(fatteningGroupRoutes[menu]);
+                      }}><span aria-hidden="true" />{menu}</button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-            ))}
+            )) : null}
           </div>
           <a className="nav-link" href="#tasks"><ClipboardCheck size={19} /><span>작업관리</span></a>
-          <a className="nav-link" href="#reports"><TrendingUp size={19} /><span>보고서</span></a>
+          <div className="nav-group">
+            <button className={`nav-link ${reportMenuOpen ? "active" : ""}`} type="button" onClick={() => {
+              setReportMenuOpen((isOpen) => !isOpen);
+              setSowMenuOpen(false);
+              setBoarMenuOpen(false);
+              setFatteningGroupMenuOpen(false);
+            }} aria-expanded={reportMenuOpen}><TrendingUp size={19} /><span>보고서</span><ChevronDown className={reportMenuOpen ? "rotate" : ""} size={15} /></button>
+            {reportMenuOpen ? <div className="sow-submenu">{reportMenus.map((menu) => <div className="report-menu-item" key={menu.key}>
+              <button className={activeReportMenu === menu.key ? "active" : ""} onClick={() => {
+                setActiveReportMenu(menu.key);
+                if (menu.key === "work-ledger") {
+                  setWorkLedgerMenuOpen((isOpen) => !isOpen);
+                  setSowListMenuOpen(false);
+                  setWorkOrderMenuOpen(false);
+                  router.push(menu.route);
+                } else if (menu.key === "sow-list") {
+                  setSowListMenuOpen((isOpen) => !isOpen);
+                  setWorkLedgerMenuOpen(false);
+                  setWorkOrderMenuOpen(false);
+                  router.push(menu.route);
+                } else if (menu.key === "work-orders") {
+                  setWorkOrderMenuOpen((isOpen) => !isOpen);
+                  setWorkLedgerMenuOpen(false);
+                  setSowListMenuOpen(false);
+                  router.push(menu.route);
+                } else {
+                  setWorkLedgerMenuOpen(false);
+                  setSowListMenuOpen(false);
+                  setWorkOrderMenuOpen(false);
+                  setMenuOpen(false);
+                  router.push(menu.route);
+                }
+              }} aria-expanded={menu.key === "work-ledger" ? workLedgerMenuOpen : menu.key === "sow-list" ? sowListMenuOpen : menu.key === "work-orders" ? workOrderMenuOpen : undefined}><span aria-hidden="true" />{menu.label}{menu.key === "work-ledger" ? <ChevronDown className={workLedgerMenuOpen ? "rotate" : ""} size={13} /> : menu.key === "sow-list" ? <ChevronDown className={sowListMenuOpen ? "rotate" : ""} size={13} /> : menu.key === "work-orders" ? <ChevronDown className={workOrderMenuOpen ? "rotate" : ""} size={13} /> : null}</button>
+              {menu.key === "work-ledger" && workLedgerMenuOpen ? <div className="ledger-submenu">{workLedgerMenus.map((ledger) => <button className={activeWorkLedgerMenu === ledger.key ? "active" : ""} key={ledger.key} onClick={() => {
+                setActiveWorkLedgerMenu(ledger.key);
+                setMenuOpen(false);
+                router.push(ledger.route);
+              }}><span aria-hidden="true" />{ledger.label}</button>)}</div> : null}
+              {menu.key === "sow-list" && sowListMenuOpen ? <div className="ledger-submenu">{sowListMenus.map((item) => <button className={activeSowListMenu === item.key ? "active" : ""} key={item.key} onClick={() => {
+                setActiveSowListMenu(item.key);
+                setMenuOpen(false);
+                router.push(item.route);
+              }}><span aria-hidden="true" />{item.label}</button>)}</div> : null}
+              {menu.key === "work-orders" && workOrderMenuOpen ? <div className="ledger-submenu">{workOrderMenus.filter((item) => item.key !== "weekly-status").map((item) => <button className={activeWorkOrderMenu === item.key ? "active" : ""} key={item.key} onClick={() => {
+                setActiveWorkOrderMenu(item.key);
+                setMenuOpen(false);
+                router.push(item.route);
+              }}><span aria-hidden="true" />{item.label}</button>)}</div> : null}
+            </div>)}</div> : null}
+          </div>
           <a className="nav-link" href="#settings"><Settings size={19} /><span>농장 설정</span></a>
         </nav>
 
@@ -211,6 +332,9 @@ export default function Dashboard() {
                   onClick={() => {
                     setActiveModule(name);
                     setSowMenuOpen(name === "모돈개체관리");
+                    setBoarMenuOpen(name === "웅돈개체관리");
+                    setFatteningGroupMenuOpen(name === "비육돈그룹관리");
+                    if (name === "출하관리") router.push("/production/shipping/grade-results");
                   }}
                 >
                   <span className="module-number">0{index + 1}</span>

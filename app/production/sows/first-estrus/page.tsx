@@ -17,24 +17,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
+import { blankEstrusCycles, CycleEntry, defaultFirstEstrusRecords, EstrusRecord, readStoredFirstEstrusRecords, writeStoredFirstEstrusRecords } from "../_data/first-estrus-records";
 import { defaultIntakeRecords, readStoredIntakeRecords, SowIntakeRecord } from "../_data/intake-records";
 import styles from "../intake/page.module.css";
-
-type CycleEntry = {
-  heatDate: string;
-  weight: string;
-  backfat: string;
-  intensity: string;
-  note: string;
-};
-
-type EstrusRecord = {
-  id: number;
-  animalNo: string;
-  earTag: string;
-  breed: string;
-  cycles: CycleEntry[];
-};
 
 type AnimalForm = {
   animalNo: string;
@@ -43,48 +28,6 @@ type AnimalForm = {
 };
 type SortField = "workDate" | "animalNo" | "earTag";
 type SortDirection = "desc" | "asc";
-
-const blankCycle = (): CycleEntry => ({ heatDate: "", weight: "", backfat: "", intensity: "정상발정", note: "" });
-const blankCycles = () => Array.from({ length: 4 }, blankCycle);
-
-const sampleRecords: EstrusRecord[] = [
-  {
-    id: 1,
-    animalNo: "2931",
-    earTag: "6508",
-    breed: "F1",
-    cycles: [
-      { heatDate: "2026-08-26", weight: "112", backfat: "13.2", intensity: "정상발정", note: "발정 반응 양호" },
-      { heatDate: "2026-09-16", weight: "118", backfat: "13.8", intensity: "정상발정", note: "" },
-      blankCycle(),
-      blankCycle(),
-    ],
-  },
-  {
-    id: 2,
-    animalNo: "2932",
-    earTag: "6644",
-    breed: "F1",
-    cycles: [
-      { heatDate: "2026-09-02", weight: "110", backfat: "12.6", intensity: "미약발정", note: "초발정 확인" },
-      blankCycle(),
-      blankCycle(),
-      blankCycle(),
-    ],
-  },
-  {
-    id: 3,
-    animalNo: "2938",
-    earTag: "66135",
-    breed: "F1",
-    cycles: [
-      { heatDate: "2026-08-30", weight: "115", backfat: "13.5", intensity: "정상발정", note: "" },
-      { heatDate: "2026-09-19", weight: "121", backfat: "14.1", intensity: "이상발정", note: "2차 확인" },
-      blankCycle(),
-      blankCycle(),
-    ],
-  },
-];
 
 type FieldProps = {
   label: string;
@@ -120,8 +63,8 @@ export default function FirstEstrusPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeCycle, setActiveCycle] = useState(0);
   const [animal, setAnimal] = useState<AnimalForm>({ animalNo: "", earTag: "", breed: "F1" });
-  const [cycles, setCycles] = useState<CycleEntry[]>(blankCycles);
-  const [records, setRecords] = useState(sampleRecords);
+  const [cycles, setCycles] = useState<CycleEntry[]>(blankEstrusCycles);
+  const [records, setRecords] = useState<EstrusRecord[]>(defaultFirstEstrusRecords);
   const [selectedRecordIds, setSelectedRecordIds] = useState<Set<number>>(() => new Set());
   const [intakeRecords, setIntakeRecords] = useState<SowIntakeRecord[]>(defaultIntakeRecords);
   const [selectorField, setSelectorField] = useState<"animalNo" | "earTag" | null>(null);
@@ -135,6 +78,7 @@ export default function FirstEstrusPage() {
 
   useEffect(() => {
     setIntakeRecords(readStoredIntakeRecords());
+    setRecords(readStoredFirstEstrusRecords());
   }, []);
 
   const selectableSows = useMemo(() => {
@@ -182,14 +126,18 @@ export default function FirstEstrusPage() {
   function deleteSelectedRecords() {
     if (!selectedRecordIds.size) return;
     const deletedCount = selectedRecordIds.size;
-    setRecords((current) => current.filter((record) => !selectedRecordIds.has(record.id)));
+    setRecords((current) => {
+      const next = current.filter((record) => !selectedRecordIds.has(record.id));
+      writeStoredFirstEstrusRecords(next);
+      return next;
+    });
     setSelectedRecordIds(new Set());
     setNotice(`선택한 초발정 기록 ${deletedCount}건을 삭제했습니다.`);
   }
 
   function resetForm() {
     setAnimal({ animalNo: "", earTag: "", breed: "F1" });
-    setCycles(blankCycles());
+    setCycles(blankEstrusCycles());
     setActiveCycle(0);
   }
 
@@ -239,9 +187,8 @@ export default function FirstEstrusPage() {
           <Link className={styles.navItem} href="/production/sows/intake"><i />전입관리</Link>
           <span className={styles.activeNav}><i />초발정관리</span>
           <Link className={styles.navItem} href="/production/sows/breeding/mating"><i />번식관리</Link>
-          {['등지방관리', '도폐사관리'].map((item) => (
-            <button key={item} onClick={() => setNotice(`${item}는 다음 단계에서 구성합니다.`)}><i />{item}</button>
-          ))}
+          <Link className={styles.navItem} href="/production/sows/backfat"><i />등지방관리</Link>
+          <Link className={styles.navItem} href="/production/sows/cull"><i />도폐사관리</Link>
         </div>
       </aside>
       {sidebarOpen ? <button className={styles.scrim} aria-label="메뉴 닫기" onClick={() => setSidebarOpen(false)} /> : null}

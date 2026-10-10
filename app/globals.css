@@ -27,7 +27,7 @@ button, input { font: inherit; }
 button { color: inherit; }
 
 .app-shell { min-height: 100vh; }
-.sidebar { position: fixed; inset: 0 auto 0 0; z-index: 50; width: 260px; background: #102e27; color: #dcebe6; padding: 22px 16px; display: flex; flex-direction: column; }
+.sidebar { position: fixed; inset: 0 auto 0 0; z-index: 50; width: 260px; overflow-y: auto; background: #102e27; color: #dcebe6; padding: 22px 16px; display: flex; flex-direction: column; }
 .brand { display: flex; align-items: center; gap: 11px; padding: 0 8px 24px; }
 .logo-mark { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; background: #63c3a1; color: #0c3d32; }
 .brand strong { display: block; font-size: 19px; letter-spacing: -0.04em; }
@@ -38,8 +38,12 @@ button { color: inherit; }
 nav { display: grid; gap: 6px; }
 .nav-link, .nav-label { min-height: 46px; display: flex; align-items: center; gap: 12px; padding: 0 13px; border-radius: 11px; color: #aac2ba; text-decoration: none; font-size: 14px; font-weight: 650; }
 .nav-link.active { color: #fff; background: rgba(105, 203, 168, 0.16); }
+button.nav-link { width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; }
+button.nav-link svg:last-child { margin-left: auto; }
 .nav-label { color: #fff; }
-.nav-label svg:last-child { margin-left: auto; }
+button.nav-label { width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; }
+.nav-label svg:last-child { margin-left: auto; transition: transform .18s ease; }
+.nav-label svg.rotate { transform: rotate(180deg); }
 .nav-group { padding: 5px 0 8px; }
 .sub-nav { width: 100%; border: 0; background: transparent; color: #95afa6; text-align: left; padding: 10px 14px 10px 45px; border-radius: 9px; display: flex; justify-content: space-between; cursor: pointer; font-size: 13px; }
 .sub-nav small { padding: 2px 6px; border-radius: 999px; background: rgba(255,255,255,.08); color: #829e95; }
@@ -52,6 +56,11 @@ nav { display: grid; gap: 6px; }
 .sow-submenu button:hover { color: #fff; background: rgba(255,255,255,.05); }
 .sow-submenu button.active { color: #fff; background: rgba(99,195,161,.12); }
 .sow-submenu button.active > span { background: #63c3a1; box-shadow: 0 0 0 3px rgba(99,195,161,.12); }
+.report-menu-item > button { width: 100%; }
+.report-menu-item > button svg { margin-left: auto; transition: transform .18s ease; }
+.report-menu-item > button svg.rotate { transform: rotate(180deg); }
+.ledger-submenu { margin: 2px 0 5px 12px; padding-left: 9px; border-left: 1px solid rgba(142,194,177,.2); display: grid; gap: 1px; }
+.ledger-submenu button { min-height: 31px; padding: 5px 6px; font-size: 11px; }
 .sidebar-foot { margin-top: auto; border-top: 1px solid rgba(255,255,255,.09); padding: 18px 8px 2px; display: flex; align-items: flex-start; gap: 10px; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f0b255; margin-top: 5px; box-shadow: 0 0 0 4px rgba(240,178,85,.12); }
 .sidebar-foot strong, .sidebar-foot span { display: block; }

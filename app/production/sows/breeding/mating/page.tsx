@@ -268,7 +268,7 @@ export default function MatingPage() {
           <Link className={styles.navItem} href="/production/sows/intake"><i />전입관리</Link>
           <Link className={styles.navItem} href="/production/sows/first-estrus"><i />초발정관리</Link>
           <span className={styles.activeNav}><i />번식관리</span>
-          {['등지방관리', '도폐사관리'].map((item) => <button key={item} onClick={() => setNotice(`${item}는 다음 단계에서 구성합니다.`)}><i />{item}</button>)}
+          <Link className={styles.navItem} href="/production/sows/backfat"><i />등지방관리</Link><Link className={styles.navItem} href="/production/sows/cull"><i />도폐사관리</Link>
         </div>
       </aside>
       {sidebarOpen ? <button className={styles.scrim} aria-label="메뉴 닫기" onClick={() => setSidebarOpen(false)} /> : null}

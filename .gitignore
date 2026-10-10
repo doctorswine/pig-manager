@@ -1,6 +1,7 @@
 node_modules/
 .next/
 .artifact-work/
+.artifact-runtime/
 outputs/
 *.tsbuildinfo
 .env

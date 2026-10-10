@@ -19,22 +19,10 @@ import Link from "next/link";
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
 import { defaultIntakeRecords, readStoredIntakeRecords, SowIntakeRecord } from "../../_data/intake-records";
 import { defaultMatingRecords, MatingRecord, readStoredMatingRecords } from "../../_data/mating-records";
+import { defaultPregnancyIncidentRecords, PregnancyIncidentRecord, readStoredPregnancyIncidentRecords, writeStoredPregnancyIncidentRecords } from "../../_data/pregnancy-incident-records";
 import styles from "../../intake/page.module.css";
 
-type IncidentRecord = {
-  id: number;
-  animalNo: string;
-  earTag: string;
-  breed: string;
-  parity: string;
-  matingDate: string;
-  incidentDate: string;
-  cause: string;
-  diagnosisLocation: string;
-  note: string;
-};
-
-type IncidentForm = Omit<IncidentRecord, "id">;
+type IncidentForm = Omit<PregnancyIncidentRecord, "id">;
 type SortField = "workDate" | "animalNo" | "earTag";
 type SortDirection = "desc" | "asc";
 
@@ -50,13 +38,8 @@ const emptyForm: IncidentForm = {
   note: "",
 };
 
-const incidentCauses = ["재발", "불임", "유산", "공태", "페사", "도태"];
+const incidentCauses = ["재발", "불임", "유산", "공태", "폐사", "도태"];
 
-const sampleRecords: IncidentRecord[] = [
-  { id: 1, animalNo: "2871", earTag: "5317", breed: "YL", parity: "2", matingDate: "2026-08-26", incidentDate: "2026-09-16", cause: "재발", diagnosisLocation: "임신사 2동", note: "재교배 예정" },
-  { id: 2, animalNo: "2814", earTag: "4720", breed: "YL", parity: "3", matingDate: "2026-08-20", incidentDate: "2026-09-14", cause: "불임", diagnosisLocation: "임신사 1동", note: "" },
-  { id: 3, animalNo: "2762", earTag: "5104", breed: "F1", parity: "1", matingDate: "2026-07-27", incidentDate: "2026-09-15", cause: "유산", diagnosisLocation: "임신사 1동", note: "상태 관찰" },
-];
 
 type FieldProps = { label: string; required?: boolean; help?: string; children: React.ReactNode };
 
@@ -74,7 +57,7 @@ function elapsedDays(fromDate: string, toDate: string) {
 export default function PregnancyIncidentPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [form, setForm] = useState<IncidentForm>(emptyForm);
-  const [records, setRecords] = useState(sampleRecords);
+  const [records, setRecords] = useState<PregnancyIncidentRecord[]>(defaultPregnancyIncidentRecords);
   const [intakeRecords, setIntakeRecords] = useState<SowIntakeRecord[]>(defaultIntakeRecords);
   const [matingRecords, setMatingRecords] = useState<MatingRecord[]>(defaultMatingRecords);
   const [selectorField, setSelectorField] = useState<"animalNo" | "earTag" | null>(null);
@@ -90,6 +73,7 @@ export default function PregnancyIncidentPage() {
   useEffect(() => {
     setIntakeRecords(readStoredIntakeRecords());
     setMatingRecords(readStoredMatingRecords());
+    setRecords(readStoredPregnancyIncidentRecords());
   }, []);
 
   const selectableSows = useMemo(() => {
@@ -145,7 +129,11 @@ export default function PregnancyIncidentPage() {
       setNotice("모돈번호, 사고일, 임신사고원인을 입력해 주세요.");
       return;
     }
-    setRecords((current) => [{ id: Date.now(), ...form }, ...current]);
+    setRecords((current) => {
+      const next = [{ id: Date.now(), ...form }, ...current];
+      writeStoredPregnancyIncidentRecords(next);
+      return next;
+    });
     setNotice(`${form.animalNo}번 모돈의 임신사고 기록을 저장했습니다.`);
     setForm(emptyForm);
   }
@@ -171,7 +159,11 @@ export default function PregnancyIncidentPage() {
   function deleteSelectedRecords() {
     if (!selectedRecordIds.size) return;
     const deletedCount = selectedRecordIds.size;
-    setRecords((current) => current.filter((record) => !selectedRecordIds.has(record.id)));
+    setRecords((current) => {
+      const next = current.filter((record) => !selectedRecordIds.has(record.id));
+      writeStoredPregnancyIncidentRecords(next);
+      return next;
+    });
     setSelectedRecordIds(new Set());
     setNotice(`선택한 임신사고 기록 ${deletedCount}건을 삭제했습니다.`);
   }
@@ -187,7 +179,7 @@ export default function PregnancyIncidentPage() {
           <Link className={styles.navItem} href="/production/sows/intake"><i />전입관리</Link>
           <Link className={styles.navItem} href="/production/sows/first-estrus"><i />초발정관리</Link>
           <span className={styles.activeNav}><i />번식관리</span>
-          {['등지방관리', '도폐사관리'].map((item) => <button key={item} onClick={() => setNotice(`${item}는 다음 단계에서 구성합니다.`)}><i />{item}</button>)}
+          <Link className={styles.navItem} href="/production/sows/backfat"><i />등지방관리</Link><Link className={styles.navItem} href="/production/sows/cull"><i />도폐사관리</Link>
         </div>
       </aside>
       {sidebarOpen ? <button className={styles.scrim} aria-label="메뉴 닫기" onClick={() => setSidebarOpen(false)} /> : null}
