@@ -8,6 +8,7 @@ import CullCandidatesReportPage from "../../_components/cull-candidates-report-p
 import FarrowingDueReportPage from "../../_components/farrowing-due-report-page";
 import SowsNeedingCareReportPage from "../../_components/sows-needing-care-report-page";
 import ScheduledWorkReportPage from "../../_components/scheduled-work-report-page";
+import SowCullAnalysisReportPage from "../../_components/sow-cull-analysis-report-page";
 
 export function generateStaticParams() { return workOrderMenus.map((item) => ({ report: item.key })); }
 
@@ -19,6 +20,7 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ repo
   if (report === "farrowing-due") return <FarrowingDueReportPage />;
   if (report === "sows-needing-care") return <SowsNeedingCareReportPage />;
   if (report === "scheduled-work") return <ScheduledWorkReportPage />;
+  if (report === "sow-cull-analysis") return <SowCullAnalysisReportPage />;
   if (report === "daily-summary" || report === "weekly-status") return <DailyWeeklyReportPage mode={report === "daily-summary" ? "daily" : "weekly"} />;
   return <ReportShell>
     <section className={styles.heading}><div><p>보고서 / 작업지시서</p><h1>{menu.label}</h1><span>{menu.description}</span></div></section>
