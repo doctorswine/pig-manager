@@ -91,7 +91,8 @@ npm start
 - 초발정과 임신사고는 공용 `localStorage` 저장 구조와 작업대장 연결을 완료했다.
 - 작업대장을 누르면 다음 7개 하위 탭을 펼친다: 모돈전입대장, 웅돈전입대장, 초발정대장, 번식대장, 등지방 대장, 도폐사 대장, 비육돈 작업대장. 번식대장을 선택하면 교배대장이 열리고 화면 상단의 교배·임신사고·분만·포유자돈·이유 탭으로 이동한다.
 - 메뉴 정의(`report-menus.ts`)에는 11개 경로가 있다. 보고서 화면 사이드바(`report-shell.tsx`)에는 7개만 보이고, 임신진단 사고대장·분만대장·포유자돈대장·이유대장 4개 경로는 숨긴 채 번식대장 상단 탭으로만 이동한다.
-- 불일치(미수정): 대시보드 사이드바(`app/page.tsx`)의 작업대장 하위 메뉴는 숨김 처리 없이 11개를 모두 표시한다. 보고서 사이드바와 맞출지 사용자 확인 후 수정한다.
+- 대시보드 사이드바(`app/page.tsx`)와 보고서 사이드바(`report-shell.tsx`)는 `report-menus.ts`의 공용 `sidebarWorkLedgerMenus`(7개)를 함께 사용한다. 숨김 대상은 같은 파일의 `hiddenBreedingLedgerKeys`에서 관리한다. 사용자 확인 결과 작업대장 하위 메뉴는 모돈전입대장~비육돈 작업대장 7개가 맞다.
+- 대시보드에서 보고서 → 작업대장(모돈리스트·작업지시서 포함)을 누르면 하위 메뉴를 펼치는 동시에 해당 보고서 화면으로 이동하므로, 실제로 보이는 하위 메뉴는 보고서 화면 사이드바다.
 - 각 작업대장 하위 탭은 `/reports/work-ledger/<구분>`의 독립 URL을 사용하며 기존 통합 작업대장 기록을 해당 업무로 자동 필터링한다. 초발정대장과 임신진단 사고대장은 각각 저장된 실제 기록을 표시한다.
 - 모돈전입대장은 전입일 시작·종료일로 조회하며 정렬기준을 모돈번호, 이각번호, 산차, 품종, 출생일 중 선택하고 오름·내림차순을 지정할 수 있다.
 - 모돈전입대장은 현재 조회 결과 전체의 인쇄 출력과 `.xlsx` 다운로드를 지원한다. 엑셀 파일은 화면 조회기간과 정렬조건을 서버에서 다시 적용하고 모돈번호·이각번호·품종·산차·출생일·전입일·전입체중·전입상태·구입처·비고를 포함한다.
@@ -344,6 +345,7 @@ npm start
 - 2026-10-10 (Claude Cowork): 문서 불일치 정리. 코드 변경 없음 — 메뉴 수(비육돈 3개, 작업대장 정의 11개/사이드바 7개, 작업지시서 정의 9개/사이드바 8개) 현행화, 비육돈 보조 경로 설명, 미구현 화면 목록, localStorage 키 표 보완, 다음 작업 후보 번호·시작 문구 정리, README 현재 단계 갱신, 대시보드 사이드바 작업대장 11개 표시 불일치 기록. 소스 코드를 바꾸지 않아 `npm run build`·브라우저 검증 대상 아님.
 - 2026-10-10: Codex 샌드박스에서 `npm run build`가 `Failed to load next.config.ts / failed to canonicalize jsc.baseUrl / 액세스가 거부되었습니다 (os error 5)`로 실패함(코드 문제 아님). 사용자 PowerShell에서 직접 `npm run build` 성공(Next.js 16.3.5, TypeScript 통과, 정적 페이지 69개 생성)했고, 동일 소스의 Linux 환경 `npm ci && next build`도 성공함. Codex에서 빌드가 막히면 PowerShell에서 직접 실행하거나 Codex 권한을 올려 실행한다.
 - 2026-10-10: `.gitignore`에 `.artifact-runtime/` 추가.
+- 2026-10-10 (Claude Cowork): 대시보드 사이드바 작업대장 하위 메뉴를 11개 → 7개로 보고서 사이드바와 통일(`report-menus.ts`에 `hiddenBreedingLedgerKeys`·`sidebarWorkLedgerMenus` 추가, `app/page.tsx`·`report-shell.tsx`가 공용 사용). Linux 환경에서 `next build` 성공(정적 페이지 69개)과 `tsc --noEmit` 통과. Playwright(Chromium) 실제 브라우저로 대시보드 → 보고서 → 작업대장 클릭 시 하위 메뉴 7개 표시와 `/reports/work-ledger` 이동, `/reports/work-ledger/farrowing`의 사이드바 7개·번식 상단 탭 5개 표시, 콘솔 오류 0건을 확인함.
 
 ## 8. 다음 작업 후보
 

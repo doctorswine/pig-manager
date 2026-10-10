@@ -25,6 +25,10 @@ export const workLedgerMenus = [
   { key: "fattening", label: "비육돈 작업대장", route: "/reports/work-ledger/fattening" },
 ] as const;
 
+// 번식대장 단계(임신사고·분만·포유자돈·이유)는 사이드바에 표시하지 않고 번식대장 상단 탭으로만 이동한다.
+export const hiddenBreedingLedgerKeys: ReadonlySet<string> = new Set(["pregnancy-incident", "farrowing", "nursing-piglets", "weaning"]);
+export const sidebarWorkLedgerMenus = workLedgerMenus.filter((menu) => !hiddenBreedingLedgerKeys.has(menu.key));
+
 export const sowListMenus = [
   { key: "owned-sows", label: "보유모돈", route: "/reports/sow-list/owned-sows", description: "현재 농장에서 보유 중인 모돈 현황을 확인합니다." },
   { key: "sow-card", label: "모돈카드", route: "/reports/sow-list/sow-card", description: "모돈별 기본정보와 생산 이력을 카드 형태로 확인합니다." },
