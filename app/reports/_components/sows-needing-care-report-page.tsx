@@ -24,7 +24,7 @@ export type CareSection = { key: CareCategory; title: string; criteria: string; 
 const FIRST_ESTRUS_CHECK_DAYS = 180;
 const GILT_MATING_DAYS = 240;
 const EXPECTED_FARROWING_DAY = 115; // 교배일을 1일차로 계산한 115일째(교배일 + 114일)
-const WEANING_DAYS = 21;
+const WEANING_DAYS = 28;
 const REMATING_DAYS = 5;
 
 export const careCategoryLabels: Record<CareCategory, string> = {
