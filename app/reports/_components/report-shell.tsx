@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import styles from "../../production/sows/intake/page.module.css";
-import { reportMenus, sowListMenus, workLedgerMenus, workOrderMenus } from "../_data/report-menus";
+import { reportMenus, sidebarWorkLedgerMenus, sowListMenus, workOrderMenus } from "../_data/report-menus";
 
 const breedingLedgerTabs = [
   { label: "교배대장", route: "/reports/work-ledger/mating" },
@@ -14,8 +14,6 @@ const breedingLedgerTabs = [
   { label: "포유자돈대장", route: "/reports/work-ledger/nursing-piglets" },
   { label: "이유대장", route: "/reports/work-ledger/weaning" },
 ] as const;
-
-const hiddenBreedingLedgerKeys = new Set(["pregnancy-incident", "farrowing", "nursing-piglets", "weaning"]);
 
 export default function ReportShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -51,7 +49,7 @@ export default function ReportShell({ children }: { children: ReactNode }) {
             <i />{menu.label}<ChevronDown className={`${styles.navChevron} ${workLedgerOpen ? styles.navChevronOpen : ""}`} size={14} />
           </Link>
           {workLedgerOpen ? <div className={styles.nestedNav}>
-            {workLedgerMenus.filter((ledger) => !hiddenBreedingLedgerKeys.has(ledger.key)).map((ledger) => <Link key={ledger.key} href={ledger.route} className={pathname === ledger.route || (ledger.key === "mating" && showBreedingLedgerTabs) ? styles.activeNav : styles.navItem} onClick={() => setSidebarOpen(false)}><i />{ledger.label}</Link>)}
+            {sidebarWorkLedgerMenus.map((ledger) => <Link key={ledger.key} href={ledger.route} className={pathname === ledger.route || (ledger.key === "mating" && showBreedingLedgerTabs) ? styles.activeNav : styles.navItem} onClick={() => setSidebarOpen(false)}><i />{ledger.label}</Link>)}
           </div> : null}
         </div> : menu.key === "sow-list" ? <div key={menu.key}>
           <Link href={menu.route} className={isSowList ? styles.activeNav : styles.navItem} onClick={() => setSowListOpen((open) => !open)} aria-expanded={sowListOpen}>

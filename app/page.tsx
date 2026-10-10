@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { reportMenus, sowListMenus, workLedgerMenus, workOrderMenus } from "./reports/_data/report-menus";
+import { reportMenus, sidebarWorkLedgerMenus, sowListMenus, workOrderMenus } from "./reports/_data/report-menus";
 
 const modules = [
   { name: "모돈개체관리", description: "후보돈부터 이유까지 개체 이력", icon: PiggyBank, count: "192두" },
@@ -244,7 +244,7 @@ export default function Dashboard() {
                   router.push(menu.route);
                 }
               }} aria-expanded={menu.key === "work-ledger" ? workLedgerMenuOpen : menu.key === "sow-list" ? sowListMenuOpen : menu.key === "work-orders" ? workOrderMenuOpen : undefined}><span aria-hidden="true" />{menu.label}{menu.key === "work-ledger" ? <ChevronDown className={workLedgerMenuOpen ? "rotate" : ""} size={13} /> : menu.key === "sow-list" ? <ChevronDown className={sowListMenuOpen ? "rotate" : ""} size={13} /> : menu.key === "work-orders" ? <ChevronDown className={workOrderMenuOpen ? "rotate" : ""} size={13} /> : null}</button>
-              {menu.key === "work-ledger" && workLedgerMenuOpen ? <div className="ledger-submenu">{workLedgerMenus.map((ledger) => <button className={activeWorkLedgerMenu === ledger.key ? "active" : ""} key={ledger.key} onClick={() => {
+              {menu.key === "work-ledger" && workLedgerMenuOpen ? <div className="ledger-submenu">{sidebarWorkLedgerMenus.map((ledger) => <button className={activeWorkLedgerMenu === ledger.key ? "active" : ""} key={ledger.key} onClick={() => {
                 setActiveWorkLedgerMenu(ledger.key);
                 setMenuOpen(false);
                 router.push(ledger.route);
