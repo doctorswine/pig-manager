@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import MatingResultsReportPage from "../../_components/mating-results-report-page";
 import ReportPlaceholder from "../../_components/report-placeholder";
 import { matingReportMenus } from "../../_data/report-menus";
 
@@ -8,5 +9,6 @@ export default async function Page({ params }: { params: Promise<{ report: strin
   const { report } = await params;
   const menu = matingReportMenus.find((item) => item.key === report);
   if (!menu) notFound();
+  if (report === "mating-results") return <MatingResultsReportPage />;
   return <ReportPlaceholder breadcrumb="보고서 / 교배" title={menu.label} description={menu.description} />;
 }
