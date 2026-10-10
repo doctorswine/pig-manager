@@ -138,9 +138,9 @@ const short = (text: string) => text.slice(5); // MM-DD
 const yymm = (year: number, month: number) => `${String(year).slice(2)}-${String(month).padStart(2, "0")}`;
 
 // 일자별 교배실적: 조회기준일을 마지막으로 단위 길이의 구간을 기간 수만큼 거꾸로 만든다(월·년은 달력 기준).
-export function dailyPeriods(baseDate: string, periodCount: number, unitCount: number, unit: PeriodUnit): MatingPeriod[] {
+export function dailyPeriods(baseDate: string, periodCount: number, unitCount: number, unit: PeriodUnit, maxUnit = 12): MatingPeriod[] {
   const periods: MatingPeriod[] = [];
-  const n = Math.min(52, Math.max(1, periodCount)); const u = Math.min(12, Math.max(1, unitCount));
+  const n = Math.min(52, Math.max(1, periodCount)); const u = Math.min(maxUnit, Math.max(1, unitCount));
   if (unit === "day" || unit === "week") {
     const length = unit === "day" ? u : u * 7;
     for (let index = 0; index < n; index += 1) {
