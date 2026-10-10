@@ -1,3 +1,3 @@
-import ReportPage from "../_components/report-page";
+import { redirect } from "next/navigation";
 
-export default function Page() { return <ReportPage menuKey="mating" />; }
+export default function Page() { redirect("/reports/mating/mating-target"); }

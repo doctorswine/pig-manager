@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Dispatch, MouseEvent, ReactNode, SetStateAction, useEffect, useState } from "react";
 import styles from "../../production/sows/intake/page.module.css";
-import { reportMenus, sidebarWorkLedgerMenus, sowListMenus, workOrderMenus } from "../_data/report-menus";
+import { fatteningReportMenus, matingReportMenus, reportMenus, sidebarWorkLedgerMenus, sowListMenus, workOrderMenus } from "../_data/report-menus";
 
 const breedingLedgerTabs = [
   { label: "교배대장", route: "/reports/work-ledger/mating" },
@@ -25,6 +25,10 @@ export default function ReportShell({ children }: { children: ReactNode }) {
   const [workLedgerOpen, setWorkLedgerOpen] = useState(isWorkLedger);
   const [sowListOpen, setSowListOpen] = useState(isSowList);
   const [workOrdersOpen, setWorkOrdersOpen] = useState(isWorkOrders);
+  const isMating = pathname.startsWith("/reports/mating");
+  const isFattening = pathname.startsWith("/reports/fattening");
+  const [matingOpen, setMatingOpen] = useState(isMating);
+  const [fatteningOpen, setFatteningOpen] = useState(isFattening);
 
   useEffect(() => {
     if (isWorkLedger) setWorkLedgerOpen(true);
@@ -37,6 +41,11 @@ export default function ReportShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isWorkOrders) setWorkOrdersOpen(true);
   }, [isWorkOrders]);
+
+  useEffect(() => {
+    if (isMating) setMatingOpen(true);
+    if (isFattening) setFatteningOpen(true);
+  }, [isMating, isFattening]);
 
   // 카테고리 안에 있으면 이동 없이 접기·펼치기만 하고, 밖에 있으면 해당 보고서로 이동하며 펼친다.
   const toggleCategory = (event: MouseEvent<HTMLAnchorElement>, isCurrent: boolean, setOpen: Dispatch<SetStateAction<boolean>>) => {
@@ -73,7 +82,19 @@ export default function ReportShell({ children }: { children: ReactNode }) {
             <i />{menu.label}<ChevronDown className={`${styles.navChevron} ${workOrdersOpen ? styles.navChevronOpen : ""}`} size={14} />
           </Link>
           {workOrdersOpen ? <div className={styles.nestedNav}>{workOrderMenus.filter((item) => item.key !== "weekly-status").map((item) => <Link key={item.key} href={item.route} className={pathname === item.route ? styles.activeNav : styles.navItem} onClick={() => setSidebarOpen(false)}><i />{item.label}</Link>)}</div> : null}
-        </div> : <Link key={menu.key} href={menu.route} className={pathname === menu.route ? styles.activeNav : styles.navItem} onClick={() => setSidebarOpen(false)}><i />{menu.label}</Link>)}
+        </div> : menu.key === "mating" || menu.key === "fattening" ? (() => {
+          // 교배·비육돈 카테고리: 하위 보고서(교배목표 달성율, 비육돈 주차별 현황)를 접기·펼치기로 표시
+          const isCurrent = menu.key === "mating" ? isMating : isFattening;
+          const open = menu.key === "mating" ? matingOpen : fatteningOpen;
+          const setOpen = menu.key === "mating" ? setMatingOpen : setFatteningOpen;
+          const items = menu.key === "mating" ? matingReportMenus : fatteningReportMenus;
+          return <div key={menu.key}>
+            <Link href={menu.route} className={isCurrent ? styles.activeNav : styles.navItem} onClick={(event) => toggleCategory(event, isCurrent, setOpen)} aria-expanded={open}>
+              <i />{menu.label}<ChevronDown className={`${styles.navChevron} ${open ? styles.navChevronOpen : ""}`} size={14} />
+            </Link>
+            {open ? <div className={styles.nestedNav}>{items.map((item) => <Link key={item.key} href={item.route} className={pathname === item.route ? styles.activeNav : styles.navItem} onClick={() => setSidebarOpen(false)}><i />{item.label}</Link>)}</div> : null}
+          </div>;
+        })() : <Link key={menu.key} href={menu.route} className={pathname === menu.route ? styles.activeNav : styles.navItem} onClick={() => setSidebarOpen(false)}><i />{menu.label}</Link>)}
       </div>
     </aside>
     {sidebarOpen ? <button className={styles.scrim} onClick={() => setSidebarOpen(false)} aria-label="메뉴 닫기" /> : null}

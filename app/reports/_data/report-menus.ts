@@ -42,9 +42,16 @@ export const workOrderMenus = [
   { key: "farrowing-due", label: "분만 예정돈", route: "/reports/work-orders/farrowing-due", description: "교배 기록을 기준으로 분만 예정 모돈을 조회합니다." },
   { key: "sows-needing-care", label: "관리대상모돈", route: "/reports/work-orders/sows-needing-care", description: "번식 흐름에서 확인이 필요한 모돈을 정리합니다." },
   { key: "scheduled-work", label: "작업예정돈", route: "/reports/work-orders/scheduled-work", description: "기간별 예정 작업과 대상 모돈을 조회합니다." },
-  { key: "mating-target", label: "교배목표 달성율", route: "/reports/work-orders/mating-target", description: "기간별 교배 목표와 실제 달성률을 비교합니다." },
   { key: "sow-cull-analysis", label: "모돈 도폐사 원인분석", route: "/reports/work-orders/sow-cull-analysis", description: "모돈 도태·폐사 원인을 구분별로 분석합니다." },
-  { key: "fattening-weekly", label: "비육돈 주차별 현황", route: "/reports/work-orders/fattening-weekly", description: "비육돈 그룹의 주차별 두수 변화를 확인합니다." },
+] as const;
+
+// 보고서 > 교배, 비육돈 하위 메뉴(작업지시서에서 이동)
+export const matingReportMenus = [
+  { key: "mating-target", label: "교배목표 달성율", route: "/reports/mating/mating-target", description: "기간별 교배 목표와 실제 달성률을 비교합니다." },
+] as const;
+
+export const fatteningReportMenus = [
+  { key: "fattening-weekly", label: "비육돈 주차별 현황", route: "/reports/fattening/fattening-weekly", description: "비육돈 그룹의 주차별 두수 변화를 확인합니다." },
 ] as const;
 
 export type ReportMenuKey = typeof reportMenus[number]["key"];

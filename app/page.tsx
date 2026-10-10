@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { reportMenus, sidebarWorkLedgerMenus, sowListMenus, workOrderMenus } from "./reports/_data/report-menus";
+import { fatteningReportMenus, matingReportMenus, reportMenus, sidebarWorkLedgerMenus, sowListMenus, workOrderMenus } from "./reports/_data/report-menus";
 
 const modules = [
   { name: "모돈개체관리", description: "후보돈부터 이유까지 개체 이력", icon: PiggyBank, count: "192두" },
@@ -84,6 +84,8 @@ export default function Dashboard() {
   const [activeSowListMenu, setActiveSowListMenu] = useState("");
   const [workOrderMenuOpen, setWorkOrderMenuOpen] = useState(false);
   const [activeWorkOrderMenu, setActiveWorkOrderMenu] = useState("");
+  // 보고서 > 교배·비육돈 하위 메뉴 펼침 상태
+  const [openReportSubMenu, setOpenReportSubMenu] = useState("");
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -236,14 +238,21 @@ export default function Dashboard() {
                   setWorkLedgerMenuOpen(false);
                   setSowListMenuOpen(false);
                   router.push(menu.route);
+                } else if (menu.key === "mating" || menu.key === "fattening") {
+                  setOpenReportSubMenu((openKey) => openKey === menu.key ? "" : menu.key);
+                  setWorkLedgerMenuOpen(false);
+                  setSowListMenuOpen(false);
+                  setWorkOrderMenuOpen(false);
+                  router.push(menu.route);
                 } else {
                   setWorkLedgerMenuOpen(false);
                   setSowListMenuOpen(false);
                   setWorkOrderMenuOpen(false);
+                  setOpenReportSubMenu("");
                   setMenuOpen(false);
                   router.push(menu.route);
                 }
-              }} aria-expanded={menu.key === "work-ledger" ? workLedgerMenuOpen : menu.key === "sow-list" ? sowListMenuOpen : menu.key === "work-orders" ? workOrderMenuOpen : undefined}><span aria-hidden="true" />{menu.label}{menu.key === "work-ledger" ? <ChevronDown className={workLedgerMenuOpen ? "rotate" : ""} size={13} /> : menu.key === "sow-list" ? <ChevronDown className={sowListMenuOpen ? "rotate" : ""} size={13} /> : menu.key === "work-orders" ? <ChevronDown className={workOrderMenuOpen ? "rotate" : ""} size={13} /> : null}</button>
+              }} aria-expanded={menu.key === "work-ledger" ? workLedgerMenuOpen : menu.key === "sow-list" ? sowListMenuOpen : menu.key === "work-orders" ? workOrderMenuOpen : menu.key === "mating" || menu.key === "fattening" ? openReportSubMenu === menu.key : undefined}><span aria-hidden="true" />{menu.label}{menu.key === "work-ledger" ? <ChevronDown className={workLedgerMenuOpen ? "rotate" : ""} size={13} /> : menu.key === "sow-list" ? <ChevronDown className={sowListMenuOpen ? "rotate" : ""} size={13} /> : menu.key === "work-orders" ? <ChevronDown className={workOrderMenuOpen ? "rotate" : ""} size={13} /> : menu.key === "mating" || menu.key === "fattening" ? <ChevronDown className={openReportSubMenu === menu.key ? "rotate" : ""} size={13} /> : null}</button>
               {menu.key === "work-ledger" && workLedgerMenuOpen ? <div className="ledger-submenu">{sidebarWorkLedgerMenus.map((ledger) => <button className={activeWorkLedgerMenu === ledger.key ? "active" : ""} key={ledger.key} onClick={() => {
                 setActiveWorkLedgerMenu(ledger.key);
                 setMenuOpen(false);
@@ -256,6 +265,10 @@ export default function Dashboard() {
               }}><span aria-hidden="true" />{item.label}</button>)}</div> : null}
               {menu.key === "work-orders" && workOrderMenuOpen ? <div className="ledger-submenu">{workOrderMenus.filter((item) => item.key !== "weekly-status").map((item) => <button className={activeWorkOrderMenu === item.key ? "active" : ""} key={item.key} onClick={() => {
                 setActiveWorkOrderMenu(item.key);
+                setMenuOpen(false);
+                router.push(item.route);
+              }}><span aria-hidden="true" />{item.label}</button>)}</div> : null}
+              {(menu.key === "mating" || menu.key === "fattening") && openReportSubMenu === menu.key ? <div className="ledger-submenu">{(menu.key === "mating" ? matingReportMenus : fatteningReportMenus).map((item) => <button key={item.key} onClick={() => {
                 setMenuOpen(false);
                 router.push(item.route);
               }}><span aria-hidden="true" />{item.label}</button>)}</div> : null}
