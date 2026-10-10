@@ -85,7 +85,7 @@ npm start
 
 - 대시보드 사이드바에 접기·펼치기 가능한 보고서 탭을 추가했다.
 - 하위 메뉴와 실제 경로: 작업대장(`/reports/work-ledger`), 모돈리스트(`/reports/sow-list`), 작업지시서(`/reports/work-orders`), 교배(`/reports/mating`), 분만(`/reports/farrowing`), 생산분석(`/reports/production-analysis`), 비육돈(`/reports/fattening`), 출하분석(`/reports/shipping-analysis`).
-- 교배와 비육돈은 접기·펼치기 카테고리다(2026-10-10 사용자 요청으로 작업지시서에서 하위 보고서 이동). 교배 하위(2026-10-10 사용자 요청으로 7개): 교배실적(`mating-results`), 교배목표 달성율(`mating-target`), 임신사고 원인분석(`pregnancy-incident-analysis`), 비생산일수 분석(`non-productive-days`), 초교배 일령별 성적(`first-mating-age`), 재귀발정분석(`return-to-estrus`), 재발정분석(`repeat-estrus`) — 모두 `/reports/mating/<구분>`이며 `/reports/mating`은 교배실적으로 이동한다. 비육돈 하위: 비육돈 주차별 현황(`/reports/fattening/fattening-weekly`). `/reports/mating`·`/reports/fattening`은 각 첫 하위 보고서로 이동한다. 메뉴 정의는 `report-menus.ts`의 `matingReportMenus`·`fatteningReportMenus`.
+- 교배와 비육돈은 접기·펼치기 카테고리다(2026-10-10 사용자 요청으로 작업지시서에서 하위 보고서 이동). 교배 하위(2026-10-10 사용자 요청으로 8개): 교배실적(`mating-results`), 교배그룹별 성적(`mating-group-results`), 교배목표 달성율(`mating-target`), 임신사고 원인분석(`pregnancy-incident-analysis`), 비생산일수 분석(`non-productive-days`), 초교배 일령별 성적(`first-mating-age`), 재귀발정분석(`return-to-estrus`), 재발정분석(`repeat-estrus`) — 모두 `/reports/mating/<구분>`이며 `/reports/mating`은 교배실적으로 이동한다. 비육돈 하위: 비육돈 주차별 현황(`/reports/fattening/fattening-weekly`). `/reports/mating`·`/reports/fattening`은 각 첫 하위 보고서로 이동한다. 메뉴 정의는 `report-menus.ts`의 `matingReportMenus`·`fatteningReportMenus`.
 - 모든 보고서 페이지는 공통 보고서 사이드바를 사용한다. 사이드바의 작업대장·모돈리스트·작업지시서 카테고리는 해당 카테고리 화면 안에서 누르면 이동 없이 접기·펼치기만 하고, 다른 보고서 화면에서 누르면 해당 보고서로 이동하며 펼친다(`report-shell.tsx`의 `toggleCategory`). 상세 항목·계산식·조회 조건·출력 형식은 사용자 예시를 받아 메뉴별로 확정한다.
 - 작업대장은 모돈 전입·교배·분만·포유자돈·이유·등지방·도폐사, 웅돈 전입·도폐사, 비육돈 그룹등록·이동전입·폐사·전출/출하·그룹종료의 브라우저 저장 기록을 하나의 목록으로 통합한다.
 - 작업대장은 작업일 기간, 관리구분(모돈/웅돈/비육돈), 작업구분, 통합검색, 작업일 오름·내림차순과 10건 페이지 이동을 지원한다.
@@ -178,7 +178,7 @@ npm start
 
 다음 경로는 메뉴와 URL만 연결되어 있고 "경로 준비됨" 공통 화면을 표시한다. 상세 항목·계산식·출력 형식은 사용자 예시를 받아 확정한다.
 
-- 교배 하위 5개(임신사고 원인분석~재발정분석, `/reports/mating/<구분>`, 교배실적·교배목표 달성율은 구현 완료), 비육돈 > 비육돈 주차별 현황(`/reports/fattening/fattening-weekly`): 공통 자리표시 화면 `app/reports/_components/report-placeholder.tsx`
+- 교배 하위 6개(교배그룹별 성적, 임신사고 원인분석~재발정분석, `/reports/mating/<구분>`, 교배실적·교배목표 달성율은 구현 완료), 비육돈 > 비육돈 주차별 현황(`/reports/fattening/fattening-weekly`): 공통 자리표시 화면 `app/reports/_components/report-placeholder.tsx`
 - 보고서 상위 3개: 분만(`/reports/farrowing`), 생산분석(`/reports/production-analysis`), 출하분석(`/reports/shipping-analysis`)
 - 대시보드(`/`)의 현황·KPI·추세는 예시 데이터이며 실제 기록과 연결되지 않았다.
 - 비육돈그룹관리 상단 바에 "화면 구조 준비" 상태 문구가 남아 있다.
@@ -411,6 +411,7 @@ npm start
 - 2026-10-10 (Claude Cowork): 보고서 > 교배 하위 메뉴를 7개(교배실적, 교배목표 달성율, 임신사고 원인분석, 비생산일수 분석, 초교배 일령별 성적, 재귀발정분석, 재발정분석)로 구성하고 각 독립 URL과 자리표시 화면을 연결. `/reports/mating`은 교배실적으로 이동. `tsc --noEmit`·`next build` 성공, Playwright로 보고서 사이드바 7개 표시·각 메뉴 이동과 활성 표시·제목, 대시보드 사이드바 교배 하위 7개, 콘솔 오류 0건 확인.
 - 2026-10-10 (Claude Cowork): 교배 > 교배실적(일자별·시계열) 구현. `tsc --noEmit`·`next build` 성공. Playwright로 시험 교배 7건(후보돈 정상·재발 재교배, 경산돈 3두 정상, 불임 후 재교배, 기간 밖 1건)을 넣어 확인: 12×1월 머리글 25-10~26-09·조회기간 2025-10-01~2026-09-30, 교배복수 6, 차수 4/1/1, 방법 인공4·자연1·혼합1, 발정 정상4·1차재발1·기타사고후1, 미경산 정상1·재발1(비율 50%), 초교배일 236, 경산 정상3·기타1, 평균재귀일 6.7(8월 11.0·9월 4.5), 재귀일 4·5·10일이상 각 1, 7일내·4~6일 재귀율 66.7%, 3×2주(08-20~09-02 …)·2×1년 머리글, 시계열 1년~당월 열과 당월 4두, 엑셀 시트·병합·숫자 확인. 콘솔 오류 0건.
 - 2026-10-10 (Claude Cowork): 교배 > 교배목표 달성율 구현. `tsc --noEmit`·`next build` 성공. Playwright로 확인: 목표 3칸 빈칸 시작, 기간수 52·단위 30·일주월년 옵션, 종료일 2026-10-10에서 12×1주→시작 07-19, 30×1주→03-15, 30×2주→2025-08-17, 6×1월→05-01 자동 계산, 4월 둘째 주 교배 4·분만 3·이유 30두가 목표 빈칸일 때 분만율 75%만, 목표 10/85/11일 때 교배 34%·분만 30%·이유 27%·목표교배 11.8·목표이유 110, 최근 교배는 "분만 전", 계·표준편차·분산, 그래프 선·점·툴팁, 새로고침 후 목표 기억, 엑셀 머리 정보·표·계 확인. 콘솔 오류 0건.
+- 2026-10-10 (Claude Cowork): 교배실적과 교배목표 달성율 사이에 교배그룹별 성적 메뉴(`/reports/mating/mating-group-results`, 자리표시 화면) 추가. `next build` 성공, Playwright로 사이드바 순서(교배실적 → 교배그룹별 성적 → 교배목표 달성율 …)와 이동 확인.
 - 알려진 문제(미수정, 2026-10-10 발견): 기존 엑셀 다운로드 API 12개는 날짜를 `new Date("yyyy-mm-ddT00:00:00")`(서버 현지 시간)로 만들어, 한국 시간대 PC에서 실행하면 엑셀 날짜 셀이 하루 앞선 날짜(전날 15:00)로 저장된다. 도태 기준모돈 산출 API는 UTC 자정(`...T00:00:00Z`)으로 만들어 해결했다. 나머지 12개도 같은 방식으로 고쳐야 한다.
 - 알려진 문제(미수정): localStorage에 시험 데이터를 넣은 상태로 종합일보(`/reports/work-orders/daily-summary`)를 처음 열면 React 하이드레이션 오류(#418, 서버·브라우저 렌더링 텍스트 불일치)가 콘솔에 표시된다.
 - 2026-10-10 (Claude Cowork): 보고서 사이드바의 모돈리스트·작업지시서가 다시 눌러도 접히지 않던 문제 수정. 원인은 카테고리 링크가 `/reports/sow-list`·`/reports/work-orders`로 이동하며 첫 하위 보고서로 다시 이동해 사이드바가 새로 펼쳐진 상태로 열린 것. 카테고리 안에서는 이동을 막고 접기·펼치기만 하도록 3개 카테고리에 공통 적용. `tsc --noEmit`·`next build` 성공, Playwright로 모돈카드·분만 예정돈·초발정대장·통합 작업대장 화면에서 접기→펼치기와 URL 유지, 다른 보고서(교배)에서 모돈리스트·작업지시서 클릭 시 보유모돈·종합일보로 이동하며 펼침, 콘솔 오류 0건 확인. 참고: 하위 대장 화면에서 작업대장 머리글을 눌러도 통합 작업대장(`/reports/work-ledger`)으로 이동하지 않고 접기만 한다.
