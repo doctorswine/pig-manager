@@ -1,3 +1,3 @@
 import { redirect } from "next/navigation";
 
-export default function Page() { redirect("/reports/mating/mating-target"); }
+export default function Page() { redirect("/reports/mating/mating-results"); }

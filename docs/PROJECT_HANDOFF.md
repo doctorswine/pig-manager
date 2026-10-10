@@ -85,7 +85,7 @@ npm start
 
 - 대시보드 사이드바에 접기·펼치기 가능한 보고서 탭을 추가했다.
 - 하위 메뉴와 실제 경로: 작업대장(`/reports/work-ledger`), 모돈리스트(`/reports/sow-list`), 작업지시서(`/reports/work-orders`), 교배(`/reports/mating`), 분만(`/reports/farrowing`), 생산분석(`/reports/production-analysis`), 비육돈(`/reports/fattening`), 출하분석(`/reports/shipping-analysis`).
-- 교배와 비육돈은 접기·펼치기 카테고리다(2026-10-10 사용자 요청으로 작업지시서에서 하위 보고서 이동). 교배 하위: 교배목표 달성율(`/reports/mating/mating-target`), 비육돈 하위: 비육돈 주차별 현황(`/reports/fattening/fattening-weekly`). `/reports/mating`·`/reports/fattening`은 각 첫 하위 보고서로 이동한다. 메뉴 정의는 `report-menus.ts`의 `matingReportMenus`·`fatteningReportMenus`.
+- 교배와 비육돈은 접기·펼치기 카테고리다(2026-10-10 사용자 요청으로 작업지시서에서 하위 보고서 이동). 교배 하위(2026-10-10 사용자 요청으로 7개): 교배실적(`mating-results`), 교배목표 달성율(`mating-target`), 임신사고 원인분석(`pregnancy-incident-analysis`), 비생산일수 분석(`non-productive-days`), 초교배 일령별 성적(`first-mating-age`), 재귀발정분석(`return-to-estrus`), 재발정분석(`repeat-estrus`) — 모두 `/reports/mating/<구분>`이며 `/reports/mating`은 교배실적으로 이동한다. 비육돈 하위: 비육돈 주차별 현황(`/reports/fattening/fattening-weekly`). `/reports/mating`·`/reports/fattening`은 각 첫 하위 보고서로 이동한다. 메뉴 정의는 `report-menus.ts`의 `matingReportMenus`·`fatteningReportMenus`.
 - 모든 보고서 페이지는 공통 보고서 사이드바를 사용한다. 사이드바의 작업대장·모돈리스트·작업지시서 카테고리는 해당 카테고리 화면 안에서 누르면 이동 없이 접기·펼치기만 하고, 다른 보고서 화면에서 누르면 해당 보고서로 이동하며 펼친다(`report-shell.tsx`의 `toggleCategory`). 상세 항목·계산식·조회 조건·출력 형식은 사용자 예시를 받아 메뉴별로 확정한다.
 - 작업대장은 모돈 전입·교배·분만·포유자돈·이유·등지방·도폐사, 웅돈 전입·도폐사, 비육돈 그룹등록·이동전입·폐사·전출/출하·그룹종료의 브라우저 저장 기록을 하나의 목록으로 통합한다.
 - 작업대장은 작업일 기간, 관리구분(모돈/웅돈/비육돈), 작업구분, 통합검색, 작업일 오름·내림차순과 10건 페이지 이동을 지원한다.
@@ -166,7 +166,7 @@ npm start
 
 다음 경로는 메뉴와 URL만 연결되어 있고 "경로 준비됨" 공통 화면을 표시한다. 상세 항목·계산식·출력 형식은 사용자 예시를 받아 확정한다.
 
-- 교배 > 교배목표 달성율(`/reports/mating/mating-target`), 비육돈 > 비육돈 주차별 현황(`/reports/fattening/fattening-weekly`): 공통 자리표시 화면 `app/reports/_components/report-placeholder.tsx`
+- 교배 하위 7개(교배실적~재발정분석, `/reports/mating/<구분>`), 비육돈 > 비육돈 주차별 현황(`/reports/fattening/fattening-weekly`): 공통 자리표시 화면 `app/reports/_components/report-placeholder.tsx`
 - 보고서 상위 3개: 분만(`/reports/farrowing`), 생산분석(`/reports/production-analysis`), 출하분석(`/reports/shipping-analysis`)
 - 대시보드(`/`)의 현황·KPI·추세는 예시 데이터이며 실제 기록과 연결되지 않았다.
 - 비육돈그룹관리 상단 바에 "화면 구조 준비" 상태 문구가 남아 있다.
@@ -396,6 +396,7 @@ npm start
 - 2026-10-10 (Claude Cowork): 교배목표 달성율을 작업지시서에서 보고서 > 교배 하위로, 비육돈 주차별 현황을 보고서 > 비육돈 하위로 이동(보고서 사이드바·대시보드 사이드바 모두). 옛 주소 `/reports/work-orders/mating-target`·`fattening-weekly`는 없앴다(404). `tsc --noEmit`·`next build` 성공. Playwright로 작업지시서 하위 6개 표시, 교배 클릭 시 `/reports/mating/mating-target` 이동·펼침, 다시 클릭 시 이동 없이 접기, 비육돈 클릭 시 `/reports/fattening/fattening-weekly` 이동, 대시보드 사이드바의 교배 하위·작업지시서 하위 6개 표시, 콘솔 오류 0건 확인.
 - 2026-10-10 (Claude Cowork): 모돈 도폐사 원인분석 보고서 구현으로 작업지시서 하위 보고서 6개를 모두 완료. `tsc --noEmit`·`next build` 성공, 범주형 팔레트 검증 스크립트 통과(대비 경고 3색은 라벨·표로 보완). Playwright로 도폐사 기록 6건(도태 4·폐사 1·판매 1, 원인 목록 밖 "모름" 1건)을 넣어 확인: 전체·월별 요약(도태 3/60%, 폐사 1/20%, 판매 1/20%)과 원인×월 표, 도태만 선택 시 3두, 연도별 2025·2026, 산차별 0·1·2·3·6·7산, 품종별 F1·YL·YY, "모름"의 기타 합산, 그래프 전환·범례 6개·막대 툴팁, 엑셀 요약표·원인표 확인. 콘솔 오류 0건.
 - 2026-10-10 (Claude Cowork): 사용자 요청으로 모돈 도폐사 원인분석의 종류 "전체"를 도태+폐사만으로 변경(전출·판매 제외). `tsc --noEmit`·`next build` 성공, Playwright로 도태 3·폐사 1·판매 1 기록 중 전체 4두(도태 75%·폐사 25%), 요약표에 전출·판매 행 없음, 판매 건이 원인표에서 빠진 것을 확인. 콘솔 오류 0건.
+- 2026-10-10 (Claude Cowork): 보고서 > 교배 하위 메뉴를 7개(교배실적, 교배목표 달성율, 임신사고 원인분석, 비생산일수 분석, 초교배 일령별 성적, 재귀발정분석, 재발정분석)로 구성하고 각 독립 URL과 자리표시 화면을 연결. `/reports/mating`은 교배실적으로 이동. `tsc --noEmit`·`next build` 성공, Playwright로 보고서 사이드바 7개 표시·각 메뉴 이동과 활성 표시·제목, 대시보드 사이드바 교배 하위 7개, 콘솔 오류 0건 확인.
 - 알려진 문제(미수정, 2026-10-10 발견): 기존 엑셀 다운로드 API 12개는 날짜를 `new Date("yyyy-mm-ddT00:00:00")`(서버 현지 시간)로 만들어, 한국 시간대 PC에서 실행하면 엑셀 날짜 셀이 하루 앞선 날짜(전날 15:00)로 저장된다. 도태 기준모돈 산출 API는 UTC 자정(`...T00:00:00Z`)으로 만들어 해결했다. 나머지 12개도 같은 방식으로 고쳐야 한다.
 - 알려진 문제(미수정): localStorage에 시험 데이터를 넣은 상태로 종합일보(`/reports/work-orders/daily-summary`)를 처음 열면 React 하이드레이션 오류(#418, 서버·브라우저 렌더링 텍스트 불일치)가 콘솔에 표시된다.
 - 2026-10-10 (Claude Cowork): 보고서 사이드바의 모돈리스트·작업지시서가 다시 눌러도 접히지 않던 문제 수정. 원인은 카테고리 링크가 `/reports/sow-list`·`/reports/work-orders`로 이동하며 첫 하위 보고서로 다시 이동해 사이드바가 새로 펼쳐진 상태로 열린 것. 카테고리 안에서는 이동을 막고 접기·펼치기만 하도록 3개 카테고리에 공통 적용. `tsc --noEmit`·`next build` 성공, Playwright로 모돈카드·분만 예정돈·초발정대장·통합 작업대장 화면에서 접기→펼치기와 URL 유지, 다른 보고서(교배)에서 모돈리스트·작업지시서 클릭 시 보유모돈·종합일보로 이동하며 펼침, 콘솔 오류 0건 확인. 참고: 하위 대장 화면에서 작업대장 머리글을 눌러도 통합 작업대장(`/reports/work-ledger`)으로 이동하지 않고 접기만 한다.
@@ -410,7 +411,7 @@ npm start
 3. 등지방관리 엑셀 일괄등록 필요 여부 확정
 4. 도폐사관리 엑셀 일괄등록 및 경영관리 수익 연결 여부 확정
 5. 작업지시서 미구현 7개 보고서 상세 설계(사용자 예시 필요)
-6. 교배목표 달성율·비육돈 주차별 현황과 보고서 상위 3개(분만·생산분석·출하분석) 상세 설계(사용자 예시 필요)
+6. 교배 하위 7개·비육돈 주차별 현황과 보고서 상위 3개(분만·생산분석·출하분석) 상세 설계(사용자 예시 필요)
 7. 대시보드를 실제 저장 기록과 연결
 8. 현재 `localStorage` 모델을 Supabase 스키마·RLS·Auth로 전환 (사용자 요청 시에만)
 9. Vercel 프로젝트 연결과 미리보기 배포 (사용자 요청 시에만)

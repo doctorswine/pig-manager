@@ -47,7 +47,13 @@ export const workOrderMenus = [
 
 // 보고서 > 교배, 비육돈 하위 메뉴(작업지시서에서 이동)
 export const matingReportMenus = [
+  { key: "mating-results", label: "교배실적", route: "/reports/mating/mating-results", description: "기간별 교배 두수와 후보돈·경산돈·재교배 실적을 확인합니다." },
   { key: "mating-target", label: "교배목표 달성율", route: "/reports/mating/mating-target", description: "기간별 교배 목표와 실제 달성률을 비교합니다." },
+  { key: "pregnancy-incident-analysis", label: "임신사고 원인분석", route: "/reports/mating/pregnancy-incident-analysis", description: "재발·불임·유산 등 임신사고를 원인별로 분석합니다." },
+  { key: "non-productive-days", label: "비생산일수 분석", route: "/reports/mating/non-productive-days", description: "이유·사고 후 재교배까지의 비생산일수를 분석합니다." },
+  { key: "first-mating-age", label: "초교배 일령별 성적", route: "/reports/mating/first-mating-age", description: "후보돈 초교배 일령 구간별 분만·산자 성적을 비교합니다." },
+  { key: "return-to-estrus", label: "재귀발정분석", route: "/reports/mating/return-to-estrus", description: "이유 후 재귀발정(재교배)까지 걸린 일수를 분석합니다." },
+  { key: "repeat-estrus", label: "재발정분석", route: "/reports/mating/repeat-estrus", description: "교배 후 재발정(재발) 발생 시기와 비율을 분석합니다." },
 ] as const;
 
 export const fatteningReportMenus = [
