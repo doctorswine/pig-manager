@@ -4,6 +4,7 @@ import styles from "../../../production/sows/intake/page.module.css";
 import ReportShell from "../../_components/report-shell";
 import { workOrderMenus } from "../../_data/report-menus";
 import DailyWeeklyReportPage from "../../_components/daily-weekly-report-page";
+import CullCandidatesReportPage from "../../_components/cull-candidates-report-page";
 
 export function generateStaticParams() { return workOrderMenus.map((item) => ({ report: item.key })); }
 
@@ -11,6 +12,7 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ repo
   const { report } = await params;
   const menu = workOrderMenus.find((item) => item.key === report);
   if (!menu) notFound();
+  if (report === "cull-candidates") return <CullCandidatesReportPage />;
   if (report === "daily-summary" || report === "weekly-status") return <DailyWeeklyReportPage mode={report === "daily-summary" ? "daily" : "weekly"} />;
   return <ReportShell>
     <section className={styles.heading}><div><p>보고서 / 작업지시서</p><h1>{menu.label}</h1><span>{menu.description}</span></div></section>
