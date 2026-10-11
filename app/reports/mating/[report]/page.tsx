@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import FirstMatingAgeReportPage from "../../_components/first-mating-age-report-page";
 import MatingGroupReportPage from "../../_components/mating-group-report-page";
 import MatingResultsReportPage from "../../_components/mating-results-report-page";
 import MatingTargetReportPage from "../../_components/mating-target-report-page";
@@ -18,5 +19,6 @@ export default async function Page({ params }: { params: Promise<{ report: strin
   if (report === "mating-group-results") return <MatingGroupReportPage />;
   if (report === "pregnancy-incident-analysis") return <PregnancyIncidentReportPage />;
   if (report === "non-productive-days") return <NonProductiveDaysReportPage />;
+  if (report === "first-mating-age") return <FirstMatingAgeReportPage />;
   return <ReportPlaceholder breadcrumb="보고서 / 교배" title={menu.label} description={menu.description} />;
 }

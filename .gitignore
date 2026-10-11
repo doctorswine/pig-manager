@@ -9,3 +9,8 @@ outputs/
 !.env.example
 npm-debug.log*
 
+# 참고용 매뉴얼 PDF(용량이 크고 외부 자료라 저장소에 올리지 않음)
+*.pdf
+# save-to-github.cmd가 쓰는 커밋 메시지 파일
+.commit-message.txt
+.commit-message.last.txt
