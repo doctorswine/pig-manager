@@ -10,7 +10,7 @@ function columnLetter(index: number) { let n = index; let text = ""; while (n > 
 
 export async function POST(request: Request) {
   try {
-    const payload = await request.json() as { title?: string; sheetName?: string; fileName?: string; infoLines?: string[]; headers?: Header[]; rows?: Cell[][]; totalRows?: Cell[][]; leftColumns?: number };
+    const payload = await request.json() as { title?: string; sheetName?: string; fileName?: string; infoLines?: string[]; headers?: Header[]; rows?: Cell[][]; totalRows?: Cell[][]; leftColumns?: number; mergeGroups?: boolean };
     if (!Array.isArray(payload.headers) || !Array.isArray(payload.rows)) return NextResponse.json({ message: "다운로드할 표가 올바르지 않습니다." }, { status: 400 });
     const headers = payload.headers.slice(0, 80);
     const leaves = headers.flatMap((header) => header.children?.length ? header.children : [header.label ?? ""]);
@@ -53,6 +53,18 @@ export async function POST(request: Request) {
       rowNumber += 1;
     };
     payload.rows.slice(0, 5000).forEach((values) => writeRow(Array.isArray(values) ? values : [], false));
+    // mergeGroups: 첫 열의 같은 묶음 이름은 세로로 합치고, 첫 열과 둘째 열이 같으면 가로로 합친다(구분/항목 2열 표).
+    if (payload.mergeGroups && leftColumns >= 2) {
+      const bodyTop = headBottom + 1; const bodyRows = payload.rows.slice(0, 5000);
+      let index = 0;
+      while (index < bodyRows.length) {
+        const group = bodyRows[index]?.[0]; let endIndex = index;
+        while (endIndex + 1 < bodyRows.length && bodyRows[endIndex + 1]?.[0] === group && group !== null && group !== "") endIndex += 1;
+        if (endIndex === index && bodyRows[index]?.[1] === group) sheet.mergeCells(bodyTop + index, 1, bodyTop + index, 2);
+        else if (endIndex > index) sheet.mergeCells(bodyTop + index, 1, bodyTop + endIndex, 1);
+        index = endIndex + 1;
+      }
+    }
     (payload.totalRows ?? []).slice(0, 10).forEach((values) => writeRow(Array.isArray(values) ? values : [], true));
     sheet.columns = leaves.map((label, index) => ({ width: index < leftColumns ? Math.max(12, Math.min(22, String(label).length * 2 + 6)) : Math.max(7, Math.min(14, String(label).length * 2 + 3)) }));
     sheet.views = [{ state: "frozen", xSplit: leftColumns, ySplit: headBottom }];
