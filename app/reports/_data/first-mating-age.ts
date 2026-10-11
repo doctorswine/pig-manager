@@ -75,5 +75,10 @@ export function buildFirstMatingAge(range: { start: string; end: string }, breed
   const counts = DISTRIBUTION_BINS.map(() => 0); mated.forEach((sow) => { const index = binIndex(DISTRIBUTION_BINS, sow.age); if (index >= 0) counts[index] += 1; });
   const distributionRow: AgeRow = { key: "count", label: "돼지두수", values: counts.map((value) => value || null), total: mated.length || null, digits: 0 };
   const avgAge = mated.length ? round1(mated.reduce((sum, sow) => sum + sow.age, 0) / mated.length) : null;
-  return { resultRows, distributionRow, litterCount: litters.length, matedCount: mated.length, avgAge };
+  // 출생일이 없어 초교배일령을 계산하지 못한 초교배(산출기간 안) 두수 — 화면 안내용
+  const counted = new Set(firsts.map((sow) => sow.animalNo));
+  const firstByAnimal = new Map<string, MatingRecord>();
+  [...data.matings].sort((left, right) => left.matingDate.localeCompare(right.matingDate) || left.id - right.id).forEach((record) => { if (!firstByAnimal.has(record.animalNo)) firstByAnimal.set(record.animalNo, record); });
+  const missingBirth = [...firstByAnimal.values()].filter((record) => num(record.parity) === 0 && !counted.has(record.animalNo) && record.matingDate >= range.start && record.matingDate <= range.end && (!breed || record.breed === breed || data.intakes.some((intake) => intake.animalNo === record.animalNo && intake.breed === breed))).length;
+  return { resultRows, distributionRow, litterCount: litters.length, matedCount: mated.length, avgAge, missingBirth };
 }

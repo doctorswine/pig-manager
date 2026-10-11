@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 export const CATEGORY_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#6250d6"];
 export type BarSeries = { name: string; values: Array<number | null>; color?: string; unit?: string }; // unit: 툴팁 단위(계열마다 다를 때)
 
-export default function GroupedBarChart({ categories, series, unit, ariaLabel, showValues = false }: { categories: string[]; series: BarSeries[]; unit: string; ariaLabel: string; showValues?: boolean }) {
+export default function GroupedBarChart({ categories, series, unit, ariaLabel, showValues = false, emptyText = "표시할 자료가 없습니다." }: { categories: string[]; series: BarSeries[]; unit: string; ariaLabel: string; showValues?: boolean; emptyText?: string }) {
   const [hover, setHover] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const height = 290; const top = 30; const bottom = 40; const left = 44; const plotHeight = height - top - bottom;
@@ -41,6 +41,7 @@ export default function GroupedBarChart({ categories, series, unit, ariaLabel, s
           </g>;
         })}
         <line x1={left} x2={width - 8} y1={top + plotHeight} y2={top + plotHeight} stroke="#9aa9a3" strokeWidth={1} />
+        {max <= 0 ? <text x={(left + width) / 2} y={top + plotHeight / 2} textAnchor="middle" fontSize={13} fill="#8a9893">{emptyText}</text> : null}
       </svg>
       {hover !== null ? <div role="tooltip" style={{ position: "absolute", left: tooltipLeft(hover), top: 10, width: 180, padding: "10px 12px", background: "#fff", border: "1px solid #dce5e1", borderRadius: 10, boxShadow: "0 6px 18px rgba(20,40,34,.12)", fontSize: 12, pointerEvents: "none", zIndex: 2 }}>
         <strong style={{ display: "block", marginBottom: 6 }}>{categories[hover]}</strong>

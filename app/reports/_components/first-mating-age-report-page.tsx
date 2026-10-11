@@ -15,7 +15,7 @@ import ReportShell from "./report-shell";
 type ReportType = "result" | "distribution";
 type Query = { reportType: ReportType; breed: string; unitCount: string; unit: PeriodUnit; endDate: string };
 type Cell = string | number | null;
-type Result = { start: string; end: string; resultRows: AgeRow[]; distributionRow: AgeRow; litterCount: number; matedCount: number; avgAge: number | null };
+type Result = { start: string; end: string; resultRows: AgeRow[]; distributionRow: AgeRow; litterCount: number; matedCount: number; avgAge: number | null; missingBirth: number };
 
 const reportTypeLabels: Record<ReportType, string> = { result: "초교배일령별 성적", distribution: "초교배일령별 분포" };
 const unitLabels: Record<PeriodUnit, string> = { day: "일", week: "주", month: "월", year: "년" };
@@ -73,7 +73,9 @@ export default function FirstMatingAgeReportPage() {
     <th style={head}>구분</th>{binLabels.map((text) => <th key={text} style={head}>{text}</th>)}<th style={head}>합계</th>
   </tr></thead><tbody>{rows.map((row) => <tr key={row.key}><td style={label}>{row.label}</td>{row.values.map((value, index) => <td key={index} style={num}>{show(value)}</td>)}<td style={{ ...num, fontWeight: 800 }}>{show(row.total)}</td></tr>)}</tbody></table></div>;
   const rowOf = (key: string) => result?.resultRows.find((row) => row.key === key);
-  const chartBins = RESULT_BINS.map((_, index) => index).filter((index) => (rowOf("farrowings")?.values[index] ?? 0) > 0); // 분만이 있는 구간만 그래프에
+  const dataBins = RESULT_BINS.map((_, index) => index).filter((index) => (rowOf("farrowings")?.values[index] ?? 0) > 0);
+  const chartBins = dataBins.length ? dataBins : RESULT_BINS.map((_, index) => index); // 분만이 있는 구간만 그래프에(없으면 전 구간 빈 그래프)
+  const missingNote = result?.missingBirth ? <p style={{ margin: "8px 18px 0", padding: "8px 12px", background: "#fff7e6", border: "1px solid #f3dca6", borderRadius: 8, fontSize: 12, color: "#7a5a12" }}>산출기간 안에 초교배한 모돈 중 {result.missingBirth}두는 모돈 전입관리에 출생일이 없어 초교배일령을 계산하지 못해 제외했습니다. 전입관리에서 출생일을 입력하면 포함됩니다.</p> : null;
 
   return <ReportShell>
     <section className={`${styles.heading} ${styles.printHidden}`}><div><p>보고서 / 교배</p><h1>초교배 일령별 성적</h1><span>후보돈의 초교배 일령(출생일→첫 교배일)별로 초산 분만성적·재귀 정보와 초교배 일령 분포를 봅니다.</span></div></section>
@@ -96,14 +98,15 @@ export default function FirstMatingAgeReportPage() {
       <div className={styles.printReportHead}><strong>참든팜</strong><h1>{title}</h1><p>품종 {breedText} · 산출기간 {result.start} ~ {result.end}</p></div>
       <div className={styles.listHead}><div><h2>{title}</h2><p>품종 {breedText} · 산출기간 {result.start} ~ {result.end} 에 분만한 초산</p></div><strong>분만 {result.litterCount}복</strong></div>
       {table(RESULT_BINS.map((bin) => bin.label), result.resultRows)}
+      {missingNote}
       <div style={{ padding: "16px 18px 4px" }}>
         <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>초교배일령별 평균 총산 · 평균 실산 · 평균 재귀일</h3>
-        {chartBins.length ? <GroupedBarChart ariaLabel="초교배일령별 평균 총산, 평균 실산, 평균 재귀일" unit="두·일" showValues categories={chartBins.map((index) => RESULT_BINS[index].label)} series={[
+        <GroupedBarChart ariaLabel="초교배일령별 평균 총산, 평균 실산, 평균 재귀일" unit="두·일" showValues emptyText="산출기간 안에 분만한 초산이 없습니다." categories={chartBins.map((index) => RESULT_BINS[index].label)} series={[
           { name: "평균 총산", unit: "두", values: chartBins.map((index) => rowOf("avgTotal")?.values[index] ?? null) },
           { name: "평균 실산", unit: "두", values: chartBins.map((index) => rowOf("avgLive")?.values[index] ?? null) },
           { name: "평균 재귀일", unit: "일", values: chartBins.map((index) => rowOf("avgReturn")?.values[index] ?? null) },
-        ]} /> : <p style={{ fontSize: 13, color: "#6c7c76" }}>산출기간 안에 분만한 초산이 없습니다.</p>}
-        <p style={{ margin: "6px 0 0", fontSize: 12, color: "#6c7c76" }}>피그플랜처럼 분만이 있는 일령 구간만 그래프에 표시합니다. 평균 총산·실산은 두, 평균 재귀일은 일입니다.</p>
+        ]} />
+        <p style={{ margin: "6px 0 0", fontSize: 12, color: "#6c7c76" }}>피그플랜처럼 분만이 있는 일령 구간만 그래프에 표시합니다(자료가 없으면 전 구간을 빈 그래프로 표시). 평균 총산·실산은 두, 평균 재귀일은 일입니다.</p>
       </div>
       <p className={styles.printHidden} style={{ margin: "10px 18px 16px", fontSize: 12, color: "#6c7c76", lineHeight: 1.6 }}>
         초교배일령 = 첫 교배일(산차 0 교배 중 가장 이른 날) − 출생일(모돈 전입관리의 출생일)입니다. 성적은 산출기간 안에 분만한 초산(초교배 이후 첫 분만)을 그 모돈의 초교배일령 구간으로 묶습니다. 평균 실산 = 생존 암·수 합, 재귀 = 그 분만의 이유일 → 다음 교배일, 평균 이유두수 = 그 분만의 이유두수 평균입니다. 합계 칸의 평균 행은 전체 초산의 평균입니다(피그플랜 엑셀은 구간 평균을 단순 합산).
@@ -113,7 +116,8 @@ export default function FirstMatingAgeReportPage() {
       <div className={styles.printReportHead}><strong>참든팜</strong><h1>{title}</h1><p>품종 {breedText} · 조회기간 {result.start} ~ {result.end}</p></div>
       <div className={styles.listHead}><div><h2>{title}</h2><p>품종 {breedText} · 조회기간 {result.start} ~ {result.end} 에 초교배한 후보돈{result.avgAge ? ` · 평균 초교배일령 ${result.avgAge}일` : ""}</p></div><strong>초교배 {result.matedCount}두</strong></div>
       {table(DISTRIBUTION_BINS.map((bin) => bin.label), [result.distributionRow])}
-      <div style={{ padding: "16px 18px 18px" }}><h3 style={{ margin: "0 0 8px", fontSize: 14 }}>초교배일령별 돼지두수</h3><GroupedBarChart ariaLabel="초교배일령별 두수 분포" unit="두" showValues categories={DISTRIBUTION_BINS.map((bin) => bin.label)} series={[{ name: "돼지두수", values: result.distributionRow.values }]} /></div>
+      {missingNote}
+      <div style={{ padding: "16px 18px 18px" }}><h3 style={{ margin: "0 0 8px", fontSize: 14 }}>초교배일령별 돼지두수</h3><GroupedBarChart ariaLabel="초교배일령별 두수 분포" unit="두" showValues categories={DISTRIBUTION_BINS.map((bin) => bin.label)} emptyText="산출기간 안에 초교배한 후보돈이 없습니다." series={[{ name: "돼지두수", values: result.distributionRow.values }]} /></div>
     </section> : null}
   </ReportShell>;
 }
