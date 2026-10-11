@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         cell.value = typeof raw === "number" && Number.isFinite(raw) ? raw : raw === null || raw === undefined ? null : safeText(raw);
         cell.border = border; cell.font = { name: "Arial", size: 10, bold, color: { argb: "FF283A34" } };
         cell.alignment = { horizontal: c <= leftColumns ? "center" : "right", vertical: "middle" };
-        if (typeof raw === "number") cell.numFmt = Number.isInteger(raw) ? "#,##0" : "#,##0.0";
+        if (typeof raw === "number") cell.numFmt = Number.isInteger(raw) ? "#,##0" : (String(raw).split(".")[1]?.length ?? 0) >= 2 ? "#,##0.00" : "#,##0.0";
         if (bold) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFEEF4F1" } };
       }
       rowNumber += 1;
