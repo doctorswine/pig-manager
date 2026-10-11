@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { defaultIntakeRecords, INTAKE_RECORDS_STORAGE_KEY, readStoredIntakeRecords, SowIntakeRecord } from "../_data/intake-records";
+import { defaultIntakeRecords, INTAKE_RECORDS_STORAGE_KEY, readStoredIntakeRecords, SOW_BREED_OPTIONS, SowIntakeRecord } from "../_data/intake-records";
 import styles from "./page.module.css";
 
 type FormState = Omit<SowIntakeRecord, "id"> & {
@@ -262,14 +262,7 @@ export default function IntakePage() {
                 </label>
                 <Field label="품종" required>
                   <select value={form.breed} onChange={(event) => updateField("breed", event.target.value)}>
-                    <option value="F1">1.F1</option>
-                    <option value="YY">2.YY</option>
-                    <option value="LY">3.LY</option>
-                    <option value="F2">4.F2</option>
-                    <option value="YL">5.YL</option>
-                    <option value="LL">6.LL</option>
-                    <option value="DD">7.DD</option>
-                    <option value="기타">8.기타</option>
+                    {SOW_BREED_OPTIONS.map((breed, index) => <option key={breed} value={breed}>{index + 1}.{breed}</option>)}
                   </select>
                 </Field>
                 <Field label="출생일" required><input type="date" value={form.birthDate} onChange={(event) => updateField("birthDate", event.target.value)} /></Field>

@@ -94,10 +94,6 @@ export function collectNpdIntervals(asOf: string, intakes: SowIntakeRecord[], ma
   return { animals, segments, herd, gilts, lactation };
 }
 
-export function breedOptions(intakes: SowIntakeRecord[], matings: MatingRecord[]) {
-  return [...new Set([...intakes.map((record) => record.breed), ...matings.map((record) => record.breed)].map((breed) => breed?.trim()).filter(Boolean))].sort();
-}
-
 export function buildNonProductiveDays(periods: MatingPeriod[], breed: string, today: string, data: { intakes: SowIntakeRecord[]; matings: MatingRecord[]; incidents: PregnancyIncidentRecord[]; culls: CullRecord[]; farrowings: FarrowingRecord[]; weanings: WeaningRecord[] }) {
   const whole = { start: periods[0]?.start ?? "", end: periods.at(-1)?.end ?? "" };
   const asOf = whole.end < today ? whole.end : today;

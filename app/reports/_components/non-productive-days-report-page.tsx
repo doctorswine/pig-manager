@@ -4,13 +4,13 @@ import { Download, FileText, Printer, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { readStoredCullRecords } from "../../production/sows/_data/cull-records";
 import { readStoredFarrowingRecords } from "../../production/sows/_data/farrowing-records";
-import { readStoredIntakeRecords } from "../../production/sows/_data/intake-records";
+import { readStoredIntakeRecords, SOW_BREED_OPTIONS } from "../../production/sows/_data/intake-records";
 import { readStoredMatingRecords } from "../../production/sows/_data/mating-records";
 import { readStoredPregnancyIncidentRecords } from "../../production/sows/_data/pregnancy-incident-records";
 import { readStoredWeaningRecords } from "../../production/sows/_data/weaning-records";
 import styles from "../../production/sows/intake/page.module.css";
 import { dailyPeriods, MatingPeriod, PeriodUnit } from "../_data/mating-results";
-import { breedOptions, buildNonProductiveDays, NpdRow } from "../_data/non-productive-days";
+import { buildNonProductiveDays, NpdRow } from "../_data/non-productive-days";
 import ReportShell from "./report-shell";
 
 type Query = { breed: string; periodCount: string; unitCount: string; unit: PeriodUnit; endDate: string };
@@ -30,12 +30,11 @@ export default function NonProductiveDaysReportPage() {
   const [draftQuery, setDraftQuery] = useState<Query>(INITIAL_QUERY);
   const [appliedQuery, setAppliedQuery] = useState<Query>(INITIAL_QUERY);
   const [result, setResult] = useState<{ periods: MatingPeriod[]; rows: NpdRow[]; start: string; end: string; asOf: string; avgGestation: number | null } | null>(null);
-  const [breeds, setBreeds] = useState<string[]>([]);
   const [exporting, setExporting] = useState(false);
   const [message, setMessage] = useState("");
 
   // 날짜 기본값은 화면이 열린 뒤 오늘로 채운다.
-  useEffect(() => { const today = localToday(); setBreeds(breedOptions(readStoredIntakeRecords(), readStoredMatingRecords())); setDraftQuery((query) => ({ ...query, endDate: today })); setAppliedQuery((query) => ({ ...query, endDate: today })); }, []);
+  useEffect(() => { const today = localToday(); setDraftQuery((query) => ({ ...query, endDate: today })); setAppliedQuery((query) => ({ ...query, endDate: today })); }, []);
 
   useEffect(() => {
     const q = appliedQuery; if (!q.endDate) return;
@@ -75,7 +74,7 @@ export default function NonProductiveDaysReportPage() {
       <div className={styles.cardHead}><div><span className={styles.cardIcon}><FileText size={18} /></span><div><h2>비생산일수(기간별)</h2><p>후보돈 전입~초교배, 이유~교배, 교배~사고, 사고~재교배·도폐사 일수를 모아 평균 비생산일수와 모돈회전율을 계산합니다.</p></div></div><span className={styles.newBadge}>생산 기록 연결</span></div>
       <div className={styles.formSection}><div className={styles.reportFilterGrid}>
         <label className={styles.field}><span className={styles.fieldLabel}>보고서 구분</span><select value="period" disabled><option value="period">{REPORT_LABEL}</option></select></label>
-        <label className={styles.field}><span className={styles.fieldLabel}>품종</span><select value={draftQuery.breed} onChange={(event) => update("breed", event.target.value)}><option value="">- 전체 -</option>{breeds.map((breed) => <option key={breed} value={breed}>{breed}</option>)}</select></label>
+        <label className={styles.field}><span className={styles.fieldLabel}>품종</span><select value={draftQuery.breed} onChange={(event) => update("breed", event.target.value)}><option value="">- 전체 -</option>{SOW_BREED_OPTIONS.map((breed) => <option key={breed} value={breed}>{breed}</option>)}</select></label>
         <label className={styles.field}><span className={styles.fieldLabel}>기간수</span><select value={draftQuery.periodCount} onChange={(event) => update("periodCount", event.target.value)}>{Array.from({ length: 52 }, (_, index) => String(index + 1)).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
         <label className={styles.field}><span className={styles.fieldLabel}>단위</span><div style={{ display: "flex", gap: 8 }}><select value={draftQuery.unitCount} onChange={(event) => update("unitCount", event.target.value)}>{Array.from({ length: 30 }, (_, index) => String(index + 1)).map((value) => <option key={value} value={value}>{value.padStart(2, "0")}</option>)}</select><select value={draftQuery.unit} onChange={(event) => update("unit", event.target.value as PeriodUnit)}>{Object.entries(unitLabels).map(([key, text]) => <option key={key} value={key}>{text}</option>)}</select></div></label>
         <label className={styles.field}><span className={styles.fieldLabel}>기간선택 (시작 · 자동)</span><input type="date" value={draftStart} readOnly disabled aria-label="기간 시작일(기간수·단위로 자동 계산)" /></label>

@@ -1,5 +1,8 @@
 export const INTAKE_RECORDS_STORAGE_KEY = "pig-manager:intake-records";
 
+// 모돈 전입관리의 품종 선택지(보고서 품종 필터도 같은 목록을 쓴다).
+export const SOW_BREED_OPTIONS = ["F1", "YY", "LY", "F2", "YL", "LL", "DD", "기타"] as const;
+
 export type SowIntakeRecord = {
   id: number;
   animalNo: string;
