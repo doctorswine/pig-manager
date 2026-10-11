@@ -21,14 +21,16 @@ function daysBetween(from: string, to: string) { return Math.round((Date.parse(`
 function num(value: unknown) { const parsed = Number(value); return Number.isFinite(parsed) ? parsed : 0; }
 const round1 = (value: number) => Math.round(value * 10) / 10;
 
-// 교배 후 사고까지 일수로 나눈 재발 구분(정해 둔 기준 — 피그플랜과 다르면 이 함수만 고치면 된다).
-export function dayCategory(days: number, cause: string): (typeof DAY_ROWS)[number] {
-  if (days >= EXPECTED_FARROWING_OFFSET) return "분만사불임"; // 분만예정일이 지나서 확인된 사고
+// 교배 후 사고까지 일수로 나눈 구분 — 피그플랜 용어집(부록A-6, 매뉴얼 p.782)·사육일수 보고서(p.292)의 구간.
+// 조기재발 0~17, 1차재발 18~25, 불규칙재발 26~37, 2차재발 38~46, 지연재발 47~80, 공태 81~106, 분만사불임 107일~
+export function dayCategory(days: number): (typeof DAY_ROWS)[number] {
   if (days <= 17) return "조기재발";
-  if (days <= 24) return "1차재발";
+  if (days <= 25) return "1차재발";
   if (days <= 37) return "불규칙재발";
-  if (days <= 44) return "2차재발";
-  return cause === "공태" ? "공태" : "지연재발";
+  if (days <= 46) return "2차재발";
+  if (days <= 80) return "지연재발";
+  if (days <= 106) return "공태";
+  return "분만사불임";
 }
 function causeRow(cause: string): (typeof CAUSE_ROWS)[number] {
   return (CAUSE_ROWS as readonly string[]).includes(cause) ? cause as (typeof CAUSE_ROWS)[number] : "재발";
@@ -82,7 +84,7 @@ export function buildIncidentAnalysis(periods: MatingPeriod[], events: IncidentE
   const rows: IncidentRow[] = [
     count("total", "총사고두수", "총사고두수", () => true),
     ...CAUSE_ROWS.map((label) => count(`cause-${label}`, "구분별", label, (event) => causeRow(event.cause) === label)),
-    ...DAY_ROWS.map((label) => count(`days-${label}`, "일수별", label, (event) => dayCategory(event.days, event.cause) === label)),
+    ...DAY_ROWS.map((label) => count(`days-${label}`, "일수별", label, (event) => dayCategory(event.days) === label)),
     { key: "totalDays", group: "총사고일수", label: "총사고일수", kind: "days", values: dayValues.map((value, index) => perPeriod[index].length ? value : null), total: all.length ? totalDays : null, average: all.length ? round1(totalDays / periods.length) : null },
     { key: "avgDays", group: "평균사고일수", label: "평균사고일수", kind: "average", values: perPeriod.map((list, index) => list.length ? round1(dayValues[index] / list.length) : null), total: all.length ? round1(totalDays / all.length) : null, average: all.length ? round1(totalDays / all.length) : null },
     ...PARITY_ROWS.map((label) => count(`parity-${label}`, "산차별", label, (event) => parityRow(event.parity) === label)),

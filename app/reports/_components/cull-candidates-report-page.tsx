@@ -61,6 +61,15 @@ function compareRows(left: CullCandidateRow, right: CullCandidateRow, key: CullC
 
 export function formatCount(value: number | null) { return value === null ? "" : String(value); }
 
+// 피그플랜 도태예정돈 고정 조건(매뉴얼 p.214) — 화면에 참고 예시로만 보여준다.
+const PIGPLAN_CULL_EXAMPLES = [
+  { title: "3번 이상 임신사고 모돈", detail: "최근 산차에서 임신사고가 3번 이상 난 모돈", howTo: "총사고횟수 3 이상" },
+  { title: "7산 이상 · 최근 이유두수 8두 이하", detail: "7산 이상이면서 최근 산차 이유두수가 8두 이하인 모돈", howTo: "산차 7부터 + 평균이유 8 이하" },
+  { title: "생후 300일 이상 후보돈", detail: "교배 기록 없이 생후 300일이 지난 후보돈", howTo: "관리대상모돈 > 미교배 후보돈에서 출생후 경과일 확인" },
+  { title: "임신말기 불임돈", detail: "교배 후 82일 이상 지나서 임신사고가 난 모돈", howTo: "임신사고 원인분석의 공태·분만사불임(81일 이상) 참고" },
+  { title: "최근 3산 총산 합 20두 이하", detail: "최근 3번 분만의 총산자수 합이 20두 이하인 모돈", howTo: "평균총산 6.7 이하(20 ÷ 3)로 비슷하게 확인" },
+];
+
 export default function CullCandidatesReportPage() {
   const [draftQuery, setDraftQuery] = useState<Query>(INITIAL_QUERY);
   const [appliedQuery, setAppliedQuery] = useState<Query>(INITIAL_QUERY);
@@ -196,6 +205,12 @@ export default function CullCandidatesReportPage() {
         <label className={styles.field}><span className={styles.fieldLabel}>정렬방향</span><select value={draftQuery.sortDirection} onChange={(event) => update("sortDirection", event.target.value as SortDirection)}><option value="desc">내림차순</option><option value="asc">오름차순</option></select></label>
         <div className={styles.reportActionButtons}><button type="button" className={styles.filterButton} onClick={applyQuery}><Search size={16} />조회</button><button type="button" className={styles.filterButton} onClick={() => window.print()}><Printer size={16} />출력</button><button type="button" className={styles.filterButton} disabled={exporting} onClick={downloadExcel}><Download size={16} />{exporting ? "생성 중..." : "엑셀 다운로드"}</button></div>
       </div>{exportError ? <p className={styles.exportError}>{exportError}</p> : null}</div>
+    </section>
+    <section className={`${styles.listCard} ${styles.printHidden}`}>
+      <div className={styles.listHead}><div><h2>참고 · 피그플랜 도태예정돈 고정 조건 (예시)</h2><p>피그플랜은 아래 5가지 조건으로 도태예정돈을 자동 산출합니다(매뉴얼 p.214, 설정값·기간 없음). 이 화면은 위 산출기준을 농장에 맞게 직접 입력하는 방식이며, 아래는 기준을 정할 때 참고하는 예시입니다.</p></div></div>
+      <div className={styles.tableWrap}><table className={styles.reportTable} style={{ minWidth: 0 }}><thead><tr><th style={{ width: 48, textAlign: "center" }}>번호</th><th>피그플랜 조건</th><th>내용</th><th>이 화면에서 비슷하게 보려면 (나머지 산출기준 칸은 비움)</th></tr></thead><tbody>
+        {PIGPLAN_CULL_EXAMPLES.map((item, index) => <tr key={item.title}><td style={{ textAlign: "center" }}>{index + 1}</td><td><strong>{item.title}</strong></td><td>{item.detail}</td><td>{item.howTo}</td></tr>)}
+      </tbody></table></div>
     </section>
     <section className={styles.listCard}>
       <div className={styles.printReportHead}><strong>참든팜</strong><h1>도태 예정돈</h1><p>최근작업일 {appliedQuery.startDate} ~ {appliedQuery.endDate} · 정렬 {cullCandidateSortLabels[appliedQuery.sortKey]} {appliedQuery.sortDirection === "asc" ? "오름차순" : "내림차순"}</p></div>

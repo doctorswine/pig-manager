@@ -25,7 +25,7 @@ const FIRST_ESTRUS_CHECK_DAYS = 180;
 const GILT_MATING_DAYS = 240;
 const EXPECTED_FARROWING_DAY = 115; // 교배일을 1일차로 계산한 115일째(교배일 + 114일)
 const WEANING_DAYS = 28;
-const REMATING_DAYS = 5;
+const REMATING_DAYS = 7; // 이유 후 7일(피그플랜 기본값, 2026-10-11 사용자 요청)
 
 export const careCategoryLabels: Record<CareCategory, string> = {
   "first-estrus": "초발정 후보돈", "unmated-gilt": "미교배 후보돈", "farrowing-delay": "교배후 분만지연돈",

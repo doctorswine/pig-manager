@@ -29,7 +29,7 @@ const rowCells = (row: NpdRow): Cell[] => [row.group, row.label, ...row.values, 
 export default function NonProductiveDaysReportPage() {
   const [draftQuery, setDraftQuery] = useState<Query>(INITIAL_QUERY);
   const [appliedQuery, setAppliedQuery] = useState<Query>(INITIAL_QUERY);
-  const [result, setResult] = useState<{ periods: MatingPeriod[]; rows: NpdRow[]; start: string; end: string; cycle: number } | null>(null);
+  const [result, setResult] = useState<{ periods: MatingPeriod[]; rows: NpdRow[]; start: string; end: string; asOf: string; avgGestation: number | null } | null>(null);
   const [breeds, setBreeds] = useState<string[]>([]);
   const [exporting, setExporting] = useState(false);
   const [message, setMessage] = useState("");
@@ -40,8 +40,8 @@ export default function NonProductiveDaysReportPage() {
   useEffect(() => {
     const q = appliedQuery; if (!q.endDate) return;
     const periods = dailyPeriods(q.endDate, Number(q.periodCount), Number(q.unitCount), q.unit, 30);
-    const built = buildNonProductiveDays(periods, q.breed, { intakes: readStoredIntakeRecords(), matings: readStoredMatingRecords(), incidents: readStoredPregnancyIncidentRecords(), culls: readStoredCullRecords(), farrowings: readStoredFarrowingRecords(), weanings: readStoredWeaningRecords() });
-    setResult({ periods, rows: built.rows, start: periods[0]?.start ?? "", end: periods.at(-1)?.end ?? "", cycle: built.cycle });
+    const built = buildNonProductiveDays(periods, q.breed, localToday(), { intakes: readStoredIntakeRecords(), matings: readStoredMatingRecords(), incidents: readStoredPregnancyIncidentRecords(), culls: readStoredCullRecords(), farrowings: readStoredFarrowingRecords(), weanings: readStoredWeaningRecords() });
+    setResult({ periods, rows: built.rows, start: periods[0]?.start ?? "", end: periods.at(-1)?.end ?? "", asOf: built.asOf, avgGestation: built.avgGestation });
   }, [appliedQuery]);
 
   // 산출 기준일: 종료일과 기간수·단위로 시작일을 자동 계산한다.
@@ -103,7 +103,7 @@ export default function NonProductiveDaysReportPage() {
         </tr>;
       })}</tbody></table></div>
       <p className={styles.printHidden} style={{ margin: "10px 18px 16px", fontSize: 12, color: "#6c7c76", lineHeight: 1.6 }}>
-        각 비생산 구간은 끝나는 날(교배·사고·도폐사일)이 속한 기간에 들어갑니다. 후보돈전입은 전입 시작상태가 후보돈인 개체만 셉니다. 임신사고일수는 교배일→사고일 일수를 임신사고 원인분석과 같은 기준(조기재발 17일 이하 … 분만사불임 115일째 이후, 유산·도태·폐사는 원인별)으로 나눕니다. 상시모돈수는 교배(또는 후보돈이 아닌 상태로 전입)한 날부터 도폐사 전날까지 하루하루 센 평균이며, 후보돈포함은 전입일부터 셉니다. 평균 비생산일수 = 후보돈 구간을 뺀 비생산일수 ÷ 상시모돈수 × 365 ÷ 기간일수, 모돈회전율 = (365 − 평균 비생산일수) ÷ (평균 임신기간 + 평균 포유기간, 이번 조회 {result.cycle}일). 비율은 임신사고일수 행은 임신사고일수 합계 대비, 나머지는 후보돈포함 총비생산일수 대비입니다. 평균 칸은 합계 ÷ 기간수이며, 평균·회전율 행의 평균 칸은 전체 기간으로 계산합니다.
+        피그플랜 매뉴얼 계산식을 따릅니다. 일수는 시작일 0·끝일 1로 세어 기간에 걸친 만큼 나눠 넣고, 아직 끝나지 않은 상태(초교배 전 후보돈, 이유 후·사고 후 미교배, 포유 중)는 {result.asOf}까지 셉니다(진행 중인 후보돈은 초교배, 이유·사고 후는 교배 행). 임신사고일수는 교배일→사고일 구간을 원인(유산·도태·폐사)이나 일수(조기재발 0~17 … 분만사불임 107일~)로 나눕니다. 상시모돈수 = (총사육일수 − 후보돈사육일수) ÷ 기간일수, 평균 비생산일수 = 총비생산일수(후보제외) × 365 ÷ 모돈사육일수, 후보돈포함 = (총비생산일수 + 후보돈사육일수) × 365 ÷ 총사육일수, 모돈회전율 = 임신일수 ÷ 모돈사육일수 × 365 ÷ 평균임신기간(임신일수 = 사육일수 − 후보돈 − 포유 − 비생산, 평균임신기간은 그 기간 분만모돈 실측{result.avgGestation ? `, 전체 ${result.avgGestation}일` : ""}; 분만이 없는 기간은 빈칸). 비율은 임신사고일수 행은 사고일수 합계 대비, 나머지는 후보돈포함 총비생산일수 대비이고, 평균 칸은 합계 ÷ 기간수(평균·회전율 행은 전체 기간 계산)입니다.
       </p>
     </section> : null}
   </ReportShell>;

@@ -57,23 +57,21 @@ function isDate(value: string | undefined) { return Boolean(value && /^\d{4}-\d{
 // 교배 기록마다 차수·방법·발정구분·초교배일령·재귀일을 정한다.
 export function classifyMatings(matings: MatingRecord[], incidents: PregnancyIncidentRecord[], intakes: SowIntakeRecord[], weanings: WeaningRecord[]): Classified[] {
   const sorted = [...matings].sort((left, right) => left.matingDate.localeCompare(right.matingDate) || left.id - right.id);
-  const repeatChain = new Map<string, number>(); // 모돈·산차별 연속 재발 교배 횟수
   return sorted.map((mating, index) => {
     const parity = num(mating.parity);
     const services = ([mating.boar2, mating.boar3].filter((boar) => boar && boar.trim()).length + 1) as 1 | 2 | 3;
     const usedMethods = [mating.method1, mating.boar2 ? mating.method2 : "", mating.boar3 ? mating.method3 : ""].filter(Boolean);
     const method = usedMethods.every((item) => item === "자연") ? "natural" : usedMethods.every((item) => item !== "자연") ? "artificial" : "mixed";
     const previous = sorted.slice(0, index).filter((record) => record.animalNo === mating.animalNo && num(record.parity) === parity).at(-1);
-    const chainKey = `${mating.animalNo}|${parity}`;
     let estrus: Classified["estrus"] = "normal";
     if (previous) {
-      // 같은 산차에서 다시 교배: 그 사이의 임신사고 원인으로 재발과 기타사고를 나눈다(사고 기록이 없으면 재발로 본다).
+      // 같은 산차에서 다시 교배(피그플랜 생산성적 정의 p.227): 재발불임(재발·불임·공태)이고 이전 교배→사고 일수가
+      // 26일 미만이면 1차재발교배, 26~46일이면 2차재발교배, 46일 초과이거나 유산 등이면 기타사고후교배. 사고 기록이 없으면 교배 간격으로 본다.
       const incident = incidents.filter((record) => record.animalNo === mating.animalNo && record.incidentDate >= previous.matingDate && record.incidentDate <= mating.matingDate).sort((left, right) => right.incidentDate.localeCompare(left.incidentDate))[0];
-      if (!incident || incident.cause === "재발") {
-        const chain = (repeatChain.get(chainKey) ?? 0) + 1; repeatChain.set(chainKey, chain);
-        estrus = chain === 1 ? "repeat1" : "repeat2";
-      } else { estrus = "otherIncident"; repeatChain.set(chainKey, 0); }
-    } else repeatChain.set(chainKey, 0);
+      const repeat = !incident || ["재발", "불임", "공태"].includes(incident.cause);
+      const days = daysBetween(previous.matingDate, incident ? incident.incidentDate : mating.matingDate);
+      estrus = !repeat || days > 46 ? "otherIncident" : days < 26 ? "repeat1" : "repeat2";
+    }
     const intake = intakes.find((record) => record.animalNo === mating.animalNo);
     const firstMatingAge = parity === 0 && estrus === "normal" && intake && isDate(intake.birthDate) ? daysBetween(intake.birthDate, mating.matingDate) : null;
     const weaning = parity > 0 && estrus === "normal" ? weanings.filter((record) => record.animalNo === mating.animalNo && record.weaningDate <= mating.matingDate).sort((left, right) => right.weaningDate.localeCompare(left.weaningDate))[0] : undefined;

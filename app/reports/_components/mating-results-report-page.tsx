@@ -108,7 +108,7 @@ export default function MatingResultsReportPage() {
         {isDaily ? <><td style={summaryStyle}>{formatMatingValue(row, row.total)}</td><td style={summaryStyle}>{formatMatingValue(row, row.average)}</td><td style={summaryStyle}>{row.ratio === null ? "" : formatMatingValue(row, row.ratio, true)}</td></> : <td style={cellStyle} />}
       </tr>)}</tbody></table></div>
       <p className={styles.printHidden} style={{ margin: "10px 18px 16px", fontSize: 12, color: "#6c7c76", lineHeight: 1.6 }}>
-        차수는 한 번의 교배에 기록한 웅돈 수(1~3회), 방법은 웅돈별 인공·자연 기록으로 나눕니다. 발정구분은 같은 산차의 이전 교배 뒤 임신사고 원인으로 정하며, 재발(또는 사고 기록 없이 재교배)은 1차재발·2차재발, 그 밖의 사고 뒤 교배는 기타사고후교배입니다. 초교배일은 후보돈 정상교배의 출생일→교배일, 평균재귀일과 재귀일분포는 경산돈 정상교배의 최근 이유일→교배일 일수입니다. 재귀율은 재귀일을 아는 경산돈 정상교배 대비, 비율(%)은 교배복수(미경산돈·경산돈 행은 각 합계) 대비입니다.{isDaily ? " 평균·재귀율 행의 합계는 전체 기간으로 다시 계산한 값입니다." : " 목표는 교배목표 달성율 보고서에서 정한 뒤 연결합니다."}
+        차수는 한 번의 교배에 기록한 웅돈 수(1~3회), 방법은 웅돈별 인공·자연 기록으로 나눕니다. 발정구분은 피그플랜 기준으로, 같은 산차에서 재발·불임·공태(재발불임) 뒤 다시 교배한 경우 이전 교배→사고 일수가 26일 미만이면 1차재발, 26~46일이면 2차재발, 46일 초과이거나 유산 뒤 교배면 기타사고후교배입니다(사고 기록이 없으면 교배 간격). 초교배일은 후보돈 정상교배의 출생일→교배일, 평균재귀일과 재귀일분포는 경산돈 정상교배의 최근 이유일→교배일 일수입니다. 재귀율은 재귀일을 아는 경산돈 정상교배 대비, 비율(%)은 교배복수(미경산돈·경산돈 행은 각 합계) 대비입니다.{isDaily ? " 평균·재귀율 행의 합계는 전체 기간으로 다시 계산한 값입니다." : " 목표는 교배목표 달성율 보고서에서 정한 뒤 연결합니다."}
       </p>
     </section> : null}
   </ReportShell>;
