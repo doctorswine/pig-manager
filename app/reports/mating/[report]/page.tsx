@@ -5,6 +5,7 @@ import MatingResultsReportPage from "../../_components/mating-results-report-pag
 import MatingTargetReportPage from "../../_components/mating-target-report-page";
 import NonProductiveDaysReportPage from "../../_components/non-productive-days-report-page";
 import PregnancyIncidentReportPage from "../../_components/pregnancy-incident-report-page";
+import ReturnToEstrusReportPage from "../../_components/return-to-estrus-report-page";
 import ReportPlaceholder from "../../_components/report-placeholder";
 import { matingReportMenus } from "../../_data/report-menus";
 
@@ -20,5 +21,6 @@ export default async function Page({ params }: { params: Promise<{ report: strin
   if (report === "pregnancy-incident-analysis") return <PregnancyIncidentReportPage />;
   if (report === "non-productive-days") return <NonProductiveDaysReportPage />;
   if (report === "first-mating-age") return <FirstMatingAgeReportPage />;
+  if (report === "return-to-estrus") return <ReturnToEstrusReportPage />;
   return <ReportPlaceholder breadcrumb="보고서 / 교배" title={menu.label} description={menu.description} />;
 }
